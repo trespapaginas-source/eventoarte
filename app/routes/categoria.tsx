@@ -87,7 +87,7 @@ export default function Categoria({ loaderData }: Route.ComponentProps) {
 
       <section className="container-page pb-16">
         {products.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4">
             {products.map((p: any) => (
               <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
             ))}

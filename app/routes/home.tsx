@@ -85,7 +85,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/catalogo"
-                className="rounded-pill bg-brand-coral px-7 py-3.5 text-sm font-bold text-white shadow-md transition-all hover:scale-105 hover:bg-brand-coral-dark"
+                className="inline-flex items-center border border-brand-ink bg-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
                 Ver catálogo
               </Link>
@@ -94,15 +94,15 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   href={`https://wa.me/${waNumber}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-pill border-2 border-whatsapp bg-white px-7 py-3.5 text-sm font-bold text-whatsapp transition-all hover:scale-105 hover:bg-whatsapp hover:text-white"
+                  className="inline-flex items-center gap-2 border border-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
                 >
-                  💬 Cotizar por WhatsApp
+                  💬 WhatsApp
                 </a>
               ) : null}
             </div>
 
             {/* Trust badges */}
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs font-medium text-brand-ink-soft">
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-brand-ink-soft">
               <span className="flex items-center gap-1.5">🇨🇴 Fabricación nacional</span>
               <span className="flex items-center gap-1.5">⚡ Cotización rápida</span>
               <span className="flex items-center gap-1.5">🎨 Diseño personalizado</span>
@@ -190,7 +190,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
               {featured.map((p: any) => (
                 <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
               ))}
@@ -201,19 +201,22 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {/* ===================== BANNER COTIZACIÓN ===================== */}
       <section className="container-page py-14">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-coral to-brand-mustard px-6 py-12 text-center text-white md:px-12 md:py-16">
+        <div className="relative overflow-hidden border border-border bg-surface-off px-6 py-14 text-center md:px-12 md:py-20">
           <div className="relative z-10 mx-auto max-w-2xl">
-            <h2 className="font-display text-3xl font-bold md:text-4xl">
+            <span className="mb-4 inline-block text-[11px] font-bold uppercase tracking-[3px] text-brand-coral">
+              Cotización a la medida
+            </span>
+            <h2 className="text-3xl font-bold text-brand-ink md:text-4xl">
               ¿Organizando un evento?
             </h2>
-            <p className="mt-3 text-lg text-white/90">
+            <p className="mt-4 text-lg leading-relaxed text-brand-ink-soft">
               Cuéntanos qué celebras y te ayudamos a crear los recordatorios
               perfectos. Cotización sin compromiso.
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/cotizar"
-                className="rounded-pill bg-white px-7 py-3.5 text-sm font-bold text-brand-coral shadow-lg transition-transform hover:scale-105"
+                className="inline-flex items-center border border-brand-ink bg-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
                 Solicitar cotización
               </Link>
@@ -222,7 +225,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   href={`https://wa.me/${waNumber}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-pill bg-whatsapp px-7 py-3.5 text-sm font-bold text-white shadow-lg transition-transform hover:scale-105"
+                  className="inline-flex items-center gap-2 border border-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
                 >
                   💬 WhatsApp
                 </a>
@@ -244,16 +247,16 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
             {catalog.map((p: any) => (
               <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
             ))}
           </div>
 
-          <div className="mt-10 text-center">
+          <div className="mt-12 text-center">
             <Link
               to="/catalogo"
-              className="inline-block rounded-pill border-2 border-brand-ink px-8 py-3.5 text-sm font-bold text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+              className="inline-block border border-brand-ink px-8 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
             >
               Ver catálogo completo
             </Link>

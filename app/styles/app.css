@@ -8,43 +8,52 @@
 */
 
 @theme {
-  /* ---- Paleta de marca ---- */
+  /* ---- Paleta de marca (refinada al estilo premium tipo Vélez) ---- */
   --color-brand-coral: #e8645a;
   --color-brand-coral-dark: #d14e45;
   --color-brand-mustard: #f2b544;
   --color-brand-sage: #7fa88c;
   --color-brand-cream: #fff8f0;
-  --color-brand-ink: #2b2522;
-  --color-brand-ink-soft: #6b6056;
+
+  /* Tinta casi-negra cálida (premium, NO negro puro) */
+  --color-brand-ink: #1a1a1a;
+  --color-brand-ink-soft: #606060;
+  --color-brand-ink-light: #8d8d8d;
 
   /* WhatsApp (oficial) */
   --color-whatsapp: #25d366;
   --color-whatsapp-dark: #1fb855;
 
-  /* Superficies */
+  /* Superficies y bordes hairline (estilo Vélez) */
   --color-surface: #ffffff;
-  --color-border: #efe7dc;
+  --color-surface-off: #f5f5f5;
+  --color-surface-soft: #fafafa;
+  --color-border: #ebecee;
+  --color-border-strong: #1a1a1a;
+
+  /* Acento exclusivo para badges de alta prioridad */
+  --color-accent: #f19e1c;
 
   /* Estados */
-  --color-success: #2e8b57;
+  --color-success: #30bf54;
   --color-error: #c0392b;
   --color-warning: #e67e22;
 
-  /* ---- Tipografía ---- */
-  --font-display: "Baloo 2", "Poppins", ui-sans-serif, system-ui, sans-serif;
+  /* ---- Tipografía (Inter como única familia, estilo Vélez) ---- */
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* ---- Radios ---- */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 22px;
+  /* ---- Radios (más sobrios, casi cuadrados) ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-pill: 9999px;
 
-  /* ---- Sombras cálidas ---- */
-  --shadow-sm: 0 1px 2px rgba(43, 37, 34, 0.06);
-  --shadow-md: 0 4px 16px rgba(43, 37, 34, 0.08);
-  --shadow-lg: 0 12px 40px rgba(43, 37, 34, 0.12);
+  /* ---- Sombras (muy sutiles, casi inexistentes) ---- */
+  --shadow-sm: 0 1px 2px rgba(26, 26, 26, 0.04);
+  --shadow-md: 0 2px 8px rgba(26, 26, 26, 0.06);
+  --shadow-lg: 0 8px 24px rgba(26, 26, 26, 0.1);
 }
 
 /* ====== Base global ====== */
@@ -74,6 +83,7 @@ h5 {
   font-family: var(--font-display);
   font-weight: 700;
   line-height: 1.15;
+  letter-spacing: -0.01em;
   color: var(--color-brand-ink);
 }
 
@@ -119,4 +129,60 @@ h5 {
   .no-print {
     display: none !important;
   }
+}
+
+/* ====== Utilidades premium (estilo Vélez) ====== */
+
+/* Texto en mayúsculas con tracking amplio (señal de "fashion house") */
+@utility tracking-wide-caps {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-weight: 700;
+}
+
+@utility tracking-button {
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+}
+
+/* Botón outline (estilo Vélez: borde fino, uppercase, tracking) */
+@utility btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--color-brand-ink);
+  color: var(--color-brand-ink);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.875rem 1.75rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.btn-outline:hover {
+  background: var(--color-brand-ink);
+  color: #fff;
+}
+
+/* Badge cinta vertical rotada (estilo "Exclusivo Online" de Vélez) */
+.ribbon-vertical {
+  position: absolute;
+  top: 50%;
+  left: -2rem;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: center;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  white-space: nowrap;
+  z-index: 10;
 }

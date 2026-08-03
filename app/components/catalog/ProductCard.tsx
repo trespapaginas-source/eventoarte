@@ -1,11 +1,13 @@
 import { Link } from "react-router";
 
 /**
- * Tarjeta de producto — estilo premium inspirado en Vélez.
- * Sección 7.3 del Documento Técnico.
- *
- * Incluye: imagen con ratio fijo, badges (Nuevo / Más vendido), categoría,
- * nombre, código, precio elegante y cantidad mínima.
+ * Tarjeta de producto — estilo premium tipo Vélez.
+ * Principios aplicados del análisis:
+ *  - Imagen ratio 1:1 cuadrada, object-position bottom
+ *  - Sin sombras pesadas, hover solo con zoom sutil (scale 1.1)
+ *  - Botón outline (uppercase + tracking 1.5px)
+ *  - Bordes hairline (#EBECEE)
+ *  - Badge tipo cinta para destacados
  */
 
 function formatCOP(value: number): string {
@@ -33,25 +35,23 @@ export function ProductCard({ product }: ProductCardProps) {
   const image = product.image ?? product.gallery?.[0];
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-      {/* Badges */}
-      <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
-        {product.isNew ? (
-          <span className="rounded-pill bg-brand-mustard px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
-            Nuevo
-          </span>
-        ) : null}
-        {product.isBestseller ? (
-          <span className="rounded-pill bg-brand-coral px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
-            Más vendido
-          </span>
-        ) : null}
-      </div>
+    <article className="group relative flex flex-col bg-surface">
+      {/* Badges (cinta vertical para destacados, esquina para nuevos) */}
+      {product.isBestseller ? (
+        <span className="absolute left-3 top-3 z-10 rounded-pill bg-brand-coral px-3 py-1 text-[10px] font-medium uppercase tracking-[1.5px] text-white">
+          Más vendido
+        </span>
+      ) : null}
+      {product.isNew ? (
+        <span className="absolute right-3 top-3 z-10 rounded-pill bg-brand-mustard px-3 py-1 text-[10px] font-medium uppercase tracking-[1.5px] text-white">
+          Nuevo
+        </span>
+      ) : null}
 
-      {/* Imagen */}
+      {/* Imagen — ratio 1:1, sin bordes/sombras, zoom sutil al hover */}
       <Link
         to={href}
-        className="block aspect-4/3 overflow-hidden bg-brand-cream"
+        className="block aspect-square overflow-hidden bg-surface-off"
         aria-label={`Ver ${product.name}`}
       >
         {image ? (
@@ -60,54 +60,54 @@ export function ProductCard({ product }: ProductCardProps) {
             alt={product.name}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-110"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-5xl text-brand-ink-soft">
+          <div className="flex h-full items-center justify-center text-5xl text-brand-ink-light">
             🎁
           </div>
         )}
       </Link>
 
       {/* Contenido */}
-      <div className="flex flex-1 flex-col p-4">
-        {/* Categoría */}
+      <div className="flex flex-1 flex-col pt-4">
+        {/* Categoría (overline, uppercase tracking) */}
         {product.categoryName ? (
-          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-brand-coral">
+          <p className="mb-1 text-[11px] font-medium uppercase tracking-[2px] text-brand-coral">
             {product.categoryName}
           </p>
         ) : null}
 
         {/* Nombre */}
-        <Link to={href} className="mb-1 hover:text-brand-coral">
-          <h3 className="font-display text-base leading-snug text-brand-ink transition-colors">
+        <Link to={href} className="hover:text-brand-coral">
+          <h3 className="text-[15px] font-medium leading-snug text-brand-ink transition-colors">
             {product.name}
           </h3>
         </Link>
 
         {/* Código */}
-        <p className="mb-3 font-mono text-xs text-brand-ink-soft">
-          Ref. {product.code}
+        <p className="mt-1 font-mono text-xs text-brand-ink-light">
+          {product.code}
         </p>
 
         {/* Precio */}
-        <div className="mt-auto">
-          <p className="font-display text-xl font-bold text-brand-ink">
+        <div className="mt-auto pt-4">
+          <p className="text-lg font-semibold text-brand-ink">
             {priceTypeLabel[product.priceType]}
             {formatCOP(product.price)}
           </p>
           <p className="mt-0.5 text-xs text-brand-ink-soft">
-            Cantidad mínima: {product.minQty} {product.minQty === 1 ? "unidad" : "unidades"}
+            Mín. {product.minQty} {product.minQty === 1 ? "unidad" : "unidades"}
           </p>
-        </div>
 
-        {/* CTA */}
-        <Link
-          to={href}
-          className="mt-3 block rounded-md border border-brand-ink px-4 py-2 text-center text-sm font-semibold text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
-        >
-          Ver producto
-        </Link>
+          {/* Botón outline (estilo Vélez) */}
+          <Link
+            to={href}
+            className="mt-3 block w-full border border-brand-ink py-2.5 text-center text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+          >
+            Ver producto
+          </Link>
+        </div>
       </div>
     </article>
   );

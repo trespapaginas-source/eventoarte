@@ -24,10 +24,10 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface">
-      {/* Barra superior fina */}
-      <div className="bg-brand-ink py-1.5 text-center text-xs text-white/90">
-        <span className="font-medium">
-          🇨🇴 Fabricación nacional · Personalización para cada celebración
+      {/* Barra superior fina (estilo Vélez: tracked caps) */}
+      <div className="bg-brand-ink py-2 text-center">
+        <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
+          Fabricación nacional · Personalización para cada celebración
         </span>
       </div>
 
@@ -37,21 +37,21 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
           {/* Logo */}
           <Link
             to="/"
-            className="font-display text-2xl font-extrabold tracking-tight text-brand-ink transition-colors hover:text-brand-coral md:text-3xl"
+            className="text-2xl font-extrabold tracking-tight text-brand-ink transition-colors hover:text-brand-coral md:text-3xl"
           >
             eventoarte<span className="text-brand-coral">.co</span>
           </Link>
 
-          {/* Navegación desktop */}
+          {/* Navegación desktop (tracking 3px, mayúsculas, peso 700 — estilo Vélez) */}
           <nav
-            className="ml-8 hidden flex-1 items-center gap-5 lg:flex"
+            className="ml-8 hidden flex-1 items-center gap-6 lg:flex"
             aria-label="Categorías de producto"
           >
             {NAV_CATEGORIES.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="text-sm font-medium text-brand-ink-soft transition-colors hover:text-brand-coral"
+                className="text-[12px] font-bold uppercase tracking-[2px] text-brand-ink-soft transition-colors hover:text-brand-coral"
               >
                 {item.label}
               </Link>
