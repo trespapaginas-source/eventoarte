@@ -1,9 +1,11 @@
+import { useEffect, useRef, useState } from "react";
 import type { Route } from "./+types/producto";
 import { Link } from "react-router";
 import { PublicLayout } from "~/components/layout/PublicLayout";
+import { ProductCard } from "~/components/catalog/ProductCard";
 import { buildWhatsAppProductLink } from "~/lib/whatsapp";
 import { formatCOP, priceTypeLabel } from "~/lib/format";
-import { sampleProducts } from "~/lib/sample-data";
+import { sampleProducts, type SampleProduct } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
 export function meta(_: Route.MetaArgs) {
@@ -25,9 +27,17 @@ export async function loader({ context, params }: Route.LoaderArgs) {
     throw new Response("Producto no encontrado", { status: 404 });
   }
 
-  const related = sampleProducts
-    .filter((p) => p.categorySlug === product.categorySlug && p.id !== product.id)
-    .slice(0, 4);
+  // Relacionados: misma categoría primero, después mismos eventos
+  const sameCat = sampleProducts.filter(
+    (p) => p.categorySlug === product.categorySlug && p.id !== product.id,
+  );
+  const fallback = sampleProducts.filter(
+    (p) =>
+      p.id !== product.id &&
+      p.categorySlug !== product.categorySlug &&
+      p.eventType === product.eventType,
+  );
+  const related = [...sameCat, ...fallback].slice(0, 4);
 
   const waLink = buildWhatsAppProductLink(
     { name: product.name, code: product.code, minQty: product.minQty, slug: product.slug },
@@ -43,35 +53,66 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
   const p = product;
   const image = p.image ?? p.gallery?.[0];
 
+  // Detección de scroll para activar la barra inferior fija (sticky bar)
+  const ctaRef = useRef<HTMLDivElement | null>(null);
+  const [stickyVisible, setStickyVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el) return;
+
+    // Mostrar la barra solo cuando el CTA principal sale del viewport
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        // El CTA ya NO es visible -> mostramos la barra pegajosa
+        setStickyVisible(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "0px 0px -20px 0px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const priceText = `${priceTypeLabel(p.priceType)}${formatCOP(p.price)}`;
+
   return (
     <PublicLayout waNumber={waNumber}>
-      <div className="container-page py-8">
+      <div className="container-page pb-24 pt-6 md:pb-12 md:pt-8">
         {/* Breadcrumb */}
-        <nav className="mb-6 text-xs text-brand-ink-soft" aria-label="Migas de pan">
-          <Link to="/" className="hover:text-brand-coral">Inicio</Link>
-          <span className="mx-2">/</span>
-          <Link to="/catalogo" className="hover:text-brand-coral">Catálogo</Link>
-          <span className="mx-2">/</span>
-          <Link to={`/categoria/${p.categorySlug}`} className="hover:text-brand-coral capitalize">
+        <nav className="mb-6 text-[11px] text-brand-ink-light" aria-label="Migas de pan">
+          <Link to="/" className="transition-colors hover:text-brand-ink">
+            Inicio
+          </Link>
+          <span className="mx-1.5">/</span>
+          <Link to="/catalogo" className="transition-colors hover:text-brand-ink">
+            Catálogo
+          </Link>
+          <span className="mx-1.5">/</span>
+          <Link
+            to={`/categoria/${p.categorySlug}`}
+            className="capitalize transition-colors hover:text-brand-ink"
+          >
             {p.categoryName}
           </Link>
-          <span className="mx-2">/</span>
-          <span className="text-brand-ink">{p.name}</span>
+          <span className="mx-1.5">/</span>
+          <span className="text-brand-ink-soft">{p.name}</span>
         </nav>
 
-        <div className="grid gap-10 md:grid-cols-2">
-          {/* Galería */}
+        <div className="grid gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
+          {/* ===== Galería ===== */}
           <div>
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-brand-cream">
-              {/* Badges */}
-              <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
+            <div className="relative overflow-hidden border border-border bg-surface-off">
+              {/* Badges discretos */}
+              <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
                 {p.isNew ? (
-                  <span className="rounded-pill bg-brand-mustard px-3 py-1 text-[11px] font-bold uppercase text-white">
+                  <span className="bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
                     Nuevo
                   </span>
                 ) : null}
                 {p.isBestseller ? (
-                  <span className="rounded-pill bg-brand-coral px-3 py-1 text-[11px] font-bold uppercase text-white">
+                  <span className="bg-brand-coral px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
                     Más vendido
                   </span>
                 ) : null}
@@ -84,42 +125,36 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          {/* Info */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-brand-coral">
+          {/* ===== Info minimalista ===== */}
+          <div className="flex flex-col">
+            {/* Overline categoría */}
+            <p className="text-[10px] font-medium uppercase tracking-[2px] text-brand-coral">
               {p.categoryName}
             </p>
-            <h1 className="mt-2 font-display text-3xl font-bold text-brand-ink md:text-4xl">
+
+            {/* Nombre */}
+            <h1 className="mt-2 text-2xl font-medium leading-tight text-brand-ink md:text-3xl">
               {p.name}
             </h1>
-            <p className="mt-1 font-mono text-sm text-brand-ink-soft">Ref. {p.code}</p>
 
-            {/* Badge de público */}
-            {p.audience ? (
-              <div className="mt-3">
-                <Link
-                  to={p.audience === "ninas" ? "/ninas" : p.audience === "ninos" ? "/ninos" : "/catalogo"}
-                  className="inline-block border border-border bg-surface px-3 py-1 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft transition-colors hover:border-brand-coral hover:text-brand-coral"
-                >
-                  {p.audience === "ninas" ? "🎀 Para niñas" : p.audience === "ninos" ? "🚀 Para niños" : "✨ Unisex"}
-                </Link>
-              </div>
-            ) : null}
+            {/* Referencia (sin "unidad disponible") */}
+            <p className="mt-1.5 font-mono text-[11px] text-brand-ink-light">
+              Ref. {p.code}
+            </p>
 
-            <p className="mt-4 text-lg leading-relaxed text-brand-ink-soft">{p.shortDesc}</p>
+            {/* Descripción breve */}
+            <p className="mt-4 text-sm leading-relaxed text-brand-ink-soft">
+              {p.shortDesc}
+            </p>
 
             {/* Precio */}
-            <div className="mt-6 rounded-xl border border-border bg-brand-cream p-5">
-              <p className="font-display text-3xl font-bold text-brand-ink">
-                {priceTypeLabel(p.priceType)}{formatCOP(p.price)}
-              </p>
-              <p className="mt-1 text-sm text-brand-ink-soft">
-                Cantidad mínima de pedido: <strong>{p.minQty}</strong> {p.minQty === 1 ? "unidad" : "unidades"}
-              </p>
-            </div>
+            <p className="mt-5 text-2xl font-semibold text-brand-ink">{priceText}</p>
+            <p className="mt-1 text-[11px] text-brand-ink-light">
+              Pedidos desde {p.minQty} {p.minQty === 1 ? "unidad" : "unidades"}
+            </p>
 
-            {/* CTA único: Cotizar (estilo normal, no verde WhatsApp) */}
-            <div className="mt-6">
+            {/* CTA principal (referencia para el IntersectionObserver) */}
+            <div ref={ctaRef} className="mt-6">
               <a
                 href={waLink}
                 target="_blank"
@@ -129,102 +164,241 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
                 Cotizar
               </a>
               <p className="mt-2 text-center text-[11px] text-brand-ink-light">
-                Te responderemos por WhatsApp con la cotización a la medida
+                Te respondemos por WhatsApp con la cotización a la medida
               </p>
             </div>
 
-            {/* Especificaciones */}
-            <div className="mt-8">
-              <h2 className="mb-4 font-display text-lg font-bold text-brand-ink">
-                Especificaciones
-              </h2>
-              <dl className="grid grid-cols-2 gap-3 text-sm">
-                <Spec label="Material" value={p.material} />
-                <Spec label="Medidas" value={p.dimensions} />
-                <Spec label="Peso" value={p.weight} />
-                <Spec label="Tiempo de fabricación" value={p.leadTime} />
-                <Spec label="Personalización" value={p.customization} />
-                <Spec label="Ideal para" value={p.eventType} />
-              </dl>
-            </div>
-
-            {/* Colores disponibles */}
-            {p.colors && p.colors.length > 0 ? (
-              <div className="mt-6">
-                <h2 className="mb-3 font-display text-lg font-bold text-brand-ink">
-                  Colores disponibles
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {p.colors.map((c) => (
-                    <span
-                      key={c}
-                      className="rounded-pill border border-border bg-surface px-4 py-1.5 text-sm text-brand-ink-soft"
-                    >
-                      {c}
+            {/* ===== Acordeones (Descripción / Características / Cuidados) ===== */}
+            <div className="mt-8 divide-y divide-border border-y border-border">
+              <Accordion title="Descripción" defaultOpen>
+                <p className="leading-relaxed">{p.longDesc || p.shortDesc}</p>
+                {p.audience ? (
+                  <p className="mt-3">
+                    <span className="font-medium text-brand-ink">Ideal para: </span>
+                    <span className="capitalize">
+                      {p.eventType} · Público {audienceLabel(p.audience)}
                     </span>
+                  </p>
+                ) : null}
+              </Accordion>
+
+              <Accordion title="Características">
+                <dl className="space-y-2.5">
+                  <SpecRow label="Material" value={p.material} />
+                  <SpecRow label="Medidas" value={p.dimensions} />
+                  <SpecRow label="Peso" value={p.weight} />
+                  <SpecRow label="Personalización" value={p.customization} />
+                  <SpecRow label="Tiempo de fabricación" value={p.leadTime} />
+                </dl>
+                {p.colors && p.colors.length > 0 ? (
+                  <div className="mt-4">
+                    <p className="mb-2 text-[11px] font-medium uppercase tracking-[1px] text-brand-ink">
+                      Colores disponibles
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {p.colors.map((c) => (
+                        <span
+                          key={c}
+                          className="border border-border bg-surface px-2.5 py-1 text-[11px] text-brand-ink-soft"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+              </Accordion>
+
+              <Accordion title="Cuidados">
+                <ul className="space-y-1.5">
+                  {careInstructions(p).map((tip, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-brand-coral" />
+                      <span>{tip}</span>
+                    </li>
                   ))}
-                </div>
-              </div>
-            ) : null}
+                </ul>
+              </Accordion>
+            </div>
           </div>
         </div>
 
-        {/* Descripción larga */}
-        {p.longDesc ? (
-          <section className="mt-14">
-            <h2 className="mb-4 font-display text-2xl font-bold text-brand-ink">Descripción</h2>
-            <p className="max-w-3xl leading-relaxed text-brand-ink-soft">{p.longDesc}</p>
-          </section>
-        ) : null}
-
-        {/* Relacionados */}
+        {/* ===== Te puede interesar ===== */}
         {related && related.length > 0 ? (
-          <section className="mt-16">
-            <h2 className="mb-6 font-display text-2xl font-bold text-brand-ink">
-              Productos relacionados
+          <section className="mt-16 md:mt-20">
+            <h2 className="mb-6 text-center text-xs font-medium uppercase tracking-[2px] text-brand-ink md:text-left md:tracking-[3px]">
+              Te puede interesar
             </h2>
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
               {related.map((rp) => (
-                <Link
-                  key={rp.id}
-                  to={`/producto/${rp.slug}`}
-                  className="group block overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
-                >
-                  <div className="aspect-4/3 overflow-hidden bg-brand-cream">
-                    <img
-                      src={rp.image}
-                      alt={rp.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-display text-sm leading-snug group-hover:text-brand-coral">
-                      {rp.name}
-                    </h3>
-                    <p className="mt-1 font-mono text-xs text-brand-ink-soft">Ref. {rp.code}</p>
-                    <p className="mt-2 font-bold text-brand-ink">
-                      {priceTypeLabel(rp.priceType)}{formatCOP(rp.price)}
-                    </p>
-                  </div>
-                </Link>
+                <ProductCard key={rp.id} product={rp} />
               ))}
             </div>
           </section>
         ) : null}
       </div>
+
+      {/* ===== Barra inferior fija (sticky) ===== */}
+      <StickyCotizarBar
+        product={p}
+        priceText={priceText}
+        waLink={waLink}
+        visible={stickyVisible}
+      />
     </PublicLayout>
   );
 }
 
-function Spec({ label, value }: { label: string; value: string }) {
-  if (!value) return null;
+/* ============================================================
+   Componentes auxiliares
+   ============================================================ */
+
+function Accordion({
+  title,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="rounded-lg border border-border bg-surface p-3">
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-brand-ink-soft">
-        {label}
-      </dt>
-      <dd className="mt-1 font-medium text-brand-ink">{value}</dd>
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between py-4 text-left"
+      >
+        <span className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink">
+          {title}
+        </span>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+          className={`shrink-0 text-brand-ink-soft transition-transform duration-200 ${
+            open ? "rotate-180" : ""
+          }`}
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {open ? <div className="pb-5 text-sm text-brand-ink-soft">{children}</div> : null}
     </div>
   );
+}
+
+function SpecRow({ label, value }: { label: string; value: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex gap-3">
+      <dt className="w-32 shrink-0 text-[11px] font-medium uppercase tracking-[0.5px] text-brand-ink-light">
+        {label}
+      </dt>
+      <dd className="flex-1 text-brand-ink-soft">{value}</dd>
+    </div>
+  );
+}
+
+function StickyCotizarBar({
+  product,
+  priceText,
+  waLink,
+  visible,
+}: {
+  product: SampleProduct;
+  priceText: string;
+  waLink: string;
+  visible: boolean;
+}) {
+  return (
+    <div
+      className={`fixed inset-x-0 bottom-0 z-40 transform border-t border-border bg-surface/95 backdrop-blur transition-transform duration-300 ${
+        visible ? "translate-y-0" : "translate-y-full"
+      }`}
+      role="region"
+      aria-label="Cotización rápida"
+    >
+      <div className="container-page flex items-center justify-between gap-4 py-3">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-medium text-brand-ink">{product.name}</p>
+          <p className="mt-0.5 text-sm font-semibold text-brand-ink">{priceText}</p>
+        </div>
+        <a
+          href={waLink}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex shrink-0 items-center justify-center border border-brand-ink bg-brand-ink px-6 py-3 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
+        >
+          Cotizar
+        </a>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   Helpers de presentación
+   ============================================================ */
+
+function audienceLabel(audience: string): string {
+  switch (audience) {
+    case "ninas":
+      return "niñas";
+    case "ninos":
+      return "niños";
+    default:
+      return "unisex";
+  }
+}
+
+/**
+ * Genera instrucciones de cuidado razonables según el material del producto.
+ * El catálogo no tiene un campo "cuidados" todavía, así que se infiere.
+ */
+function careInstructions(p: SampleProduct): string[] {
+  const mat = (p.material || "").toLowerCase();
+
+  if (mat.includes("neopreno")) {
+    return [
+      "Limpiar con un paño húmedo y jabón suave.",
+      "No usar lejía ni solventes agresivos.",
+      "Secar al aire libre, lejos de fuentes de calor directo.",
+      "No planchar.",
+    ];
+  }
+  if (mat.includes("cartón")) {
+    return [
+      "Mantener en lugar seco y alejado de la humedad.",
+      "Evitar la exposición prolongada al sol para conservar los colores.",
+      "Limpiar con un pincel suave o paño seco.",
+      "No exponer a líquidos directamente.",
+    ];
+  }
+  if (mat.includes("tela premium") || mat.includes("lona")) {
+    return [
+      "Lavar a mano con agua fría y detergente suave.",
+      "No usar lejía ni blanqueadores.",
+      "Secar al aire libre, extendido y a la sombra.",
+      "Planchar a baja temperatura si es necesario, evitando el estampado.",
+    ];
+  }
+  if (mat.includes("papel")) {
+    return [
+      "Mantener en lugar seco y fresco.",
+      "Manipular con manos limpias para evitar manchas.",
+      "Alejar de fuentes de calor y humedad.",
+    ];
+  }
+  return [
+    "Limpiar con un paño suave y seco.",
+    "Evitar la exposición prolongada al sol.",
+    "Guardar en lugar seco cuando no se use.",
+  ];
 }
