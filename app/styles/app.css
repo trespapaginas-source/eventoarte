@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/*
+  ============================================================
+  eventoarte.co — Design System (Sección 6 del Documento Técnico)
+  Tailwind v4 con tokens vía @theme.
+  ============================================================
+*/
+
+@theme {
+  /* ---- Paleta de marca ---- */
+  --color-brand-coral: #e8645a;
+  --color-brand-coral-dark: #d14e45;
+  --color-brand-mustard: #f2b544;
+  --color-brand-sage: #7fa88c;
+  --color-brand-cream: #fff8f0;
+  --color-brand-ink: #2b2522;
+  --color-brand-ink-soft: #6b6056;
+
+  /* WhatsApp (oficial) */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-dark: #1fb855;
+
+  /* Superficies */
+  --color-surface: #ffffff;
+  --color-border: #efe7dc;
+
+  /* Estados */
+  --color-success: #2e8b57;
+  --color-error: #c0392b;
+  --color-warning: #e67e22;
+
+  /* ---- Tipografía ---- */
+  --font-display: "Baloo 2", "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* ---- Radios ---- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 9999px;
+
+  /* ---- Sombras cálidas ---- */
+  --shadow-sm: 0 1px 2px rgba(43, 37, 34, 0.06);
+  --shadow-md: 0 4px 16px rgba(43, 37, 34, 0.08);
+  --shadow-lg: 0 12px 40px rgba(43, 37, 34, 0.12);
+}
+
+/* ====== Base global ====== */
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-surface);
+  color: var(--color-brand-ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--color-brand-ink);
+}
+
+/* Respeta usuarios que prefieren menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Foco accesible visible */
+:focus-visible {
+  outline: 3px solid var(--color-brand-coral);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Utility containers reutilizables */
+@utility container-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  max-width: 80rem; /* 1280px */
+}
+
+@media (min-width: 768px) {
+  .container-page {
+    padding-inline: 2rem;
+  }
+}
+
+/* Solo para impresión (futuras fichas de cotización) */
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+}

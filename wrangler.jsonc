@@ -1,0 +1,37 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "eventoarte",
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "main": "./workers/app.ts",
+  "assets": {
+    "directory": "./build/client"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "upload_source_maps": true,
+
+  // ====== Bindings (recursos de Cloudflare) ======
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "eventoarte-db",
+      "database_id": "REEMPLAZAR_CON_ID_DE_D1",
+      "migrations_dir": "./drizzle/migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "eventoarte-media"
+    }
+  ],
+
+  // ====== Variables públicas (no sensibles) ======
+  "vars": {
+    "WA_NUMBER": "573000000000",
+    "PUBLIC_URL": "https://eventoarte.co",
+    "SITE_NAME": "eventoarte.co"
+  }
+}

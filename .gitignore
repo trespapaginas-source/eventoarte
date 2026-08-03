@@ -1,0 +1,43 @@
+# Dependencias
+node_modules/
+
+# Build
+build/
+dist/
+.react-router/
+.worker/
+.output/
+
+# Cloudflare / Wrangler
+.wrangler/
+.dev.vars
+.dev.vars.*
+*.tfstate
+
+# Tipos generados
+worker-configuration.d.ts
+.react-router/types
+
+# Entorno
+.env
+.env.local
+.env.*.local
+
+# OS / Editores
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# DB locales
+*.sqlite
+*.sqlite-journal
+.zcode/
