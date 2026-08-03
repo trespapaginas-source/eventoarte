@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AdminShell } from "~/components/admin/AdminShell";
 import { Button } from "~/components/ui/Toggle";
 import { Field, TextInput, TextArea } from "~/components/ui/Field";
+import { SingleImageUploader } from "~/components/admin/SingleImageUploader";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 import { requireAdmin } from "~/lib/auth";
 import { getDb } from "~/lib/db/client";
@@ -204,11 +205,13 @@ function CategoryForm({ category }: { category: any | null }) {
       <Field label="Slug (URL)" name="slug" hint="Se genera automáticamente si lo dejas vacío">
         <TextInput name="slug" defaultValue={category?.slug ?? ""} placeholder="morrales" />
       </Field>
-      <Field label="Descripción" name="description">
-        <TextArea name="description" defaultValue={category?.description ?? ""} rows={2} />
-      </Field>
-      <Field label="Clave de imagen (R2)" name="imageKey" hint="Ruta en R2, ej: categorias/morrales.jpg">
-        <TextInput name="imageKey" defaultValue={category?.imageKey ?? ""} />
+      <Field label="Imagen de la categoría" name="imageKey">
+        <SingleImageUploader
+          name="imageKey"
+          initialKey={category?.imageKey}
+          prefix="categorias"
+          hint="Se muestra en el home y en la página de categoría"
+        />
       </Field>
       <label className="flex cursor-pointer items-center justify-between">
         <span className="text-sm text-brand-ink">Activa</span>

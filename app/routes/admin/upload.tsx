@@ -6,12 +6,16 @@ import { requireAdmin } from "~/lib/auth";
  * Resource route: POST /admin/upload
  * Recibe una imagen (multipart), la guarda en R2 y devuelve JSON { key, url }.
  *
+ * Acepta un campo opcional `prefix` (string) para organizar las imágenes
+ * por tipo: "productos" (default), "categorias", etc.
+ *
  * Requiere que el binding MEDIA (R2Bucket) esté activo.
  * Si R2 no está configurado, devuelve error 503 con instrucciones.
  */
 
 const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
+const VALID_PREFIXES = new Set(["productos", "categorias", "banners", "general"]);
 
 export async function action({ context, request }: Route.ActionArgs) {
   await requireAdmin({ context, request });
@@ -23,6 +27,9 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   const form = await request.formData();
   const file = form.get("file");
+  const prefix = String(form.get("prefix") ?? "productos").replace(/[^a-z0-9_-]/gi, "").toLowerCase();
+  const safePrefix = VALID_PREFIXES.has(prefix) ? prefix : "productos";
+
   if (!(file instanceof File)) {
     return json({ error: "No se recibió ningún archivo." }, 400);
   }
@@ -33,10 +40,10 @@ export async function action({ context, request }: Route.ActionArgs) {
     return json({ error: "La imagen supera los 5 MB." }, 413);
   }
 
-  // Generar clave única: productos/<timestamp>-<random>.<ext>
+  // Generar clave única: <prefix>/<timestamp>-<random>.<ext>
   const ext = file.type.split("/")[1] ?? "jpg";
   const rand = Math.random().toString(36).slice(2, 8);
-  const key = `productos/${Date.now()}-${rand}.${ext}`;
+  const key = `${safePrefix}/${Date.now()}-${rand}.${ext}`;
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   await env.MEDIA.put(key, bytes, {
@@ -52,3 +59,4 @@ function json(data: unknown, status = 200) {
     headers: { "Content-Type": "application/json" },
   });
 }
+
