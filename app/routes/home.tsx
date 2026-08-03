@@ -194,7 +194,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {/* ===================== CATEGORÍAS ===================== */}
       <section className="container-page py-14">
-        <div className="mb-8 text-center">
+        <div className="mb-10 text-center">
           <h2 className="font-display text-3xl font-bold text-brand-ink md:text-4xl">
             Explora por categoría
           </h2>
@@ -203,22 +203,24 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
           {categories.map((cat: any) => (
             <BrandLink
               key={cat.slug}
               to={`/categoria/${cat.slug}`}
-              className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-all hover:-translate-y-1 hover:border-brand-ink hover:shadow-md"
+              className="group flex flex-col items-center text-center"
             >
-              <div className="aspect-square w-full overflow-hidden rounded-lg bg-surface-off">
+              {/* Imagen edge-to-edge, 1:1, ocupa todo el ancho de su celda */}
+              <div className="aspect-square w-full overflow-hidden bg-surface-off">
                 <img
                   src={cat.image}
                   alt={cat.name}
                   loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 />
               </div>
-              <span className="font-display text-sm font-semibold text-brand-ink transition-opacity group-hover:opacity-70">
+              {/* Etiqueta inferior, fuera de la imagen, centrada */}
+              <span className="mt-3 text-sm font-medium tracking-tight text-brand-ink transition-opacity group-hover:opacity-60">
                 {cat.name}
               </span>
             </BrandLink>
