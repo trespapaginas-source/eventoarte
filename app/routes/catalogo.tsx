@@ -11,7 +11,6 @@ import {
   sampleProducts,
   sampleCategories,
   applyFilters,
-  getPriceRange,
   type SortOption,
 } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
@@ -49,8 +48,6 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   const filters = {
     audience: url.searchParams.get("publico") ?? "",
     category: url.searchParams.get("categoria") ?? "",
-    minPrice: url.searchParams.get("min") ? Number(url.searchParams.get("min")) : undefined,
-    maxPrice: url.searchParams.get("max") ? Number(url.searchParams.get("max")) : undefined,
     sort: (url.searchParams.get("orden") as SortOption) ?? "relevancia",
   };
 
@@ -70,19 +67,17 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   // Aplicar filtros
   const products = applyFilters(baseProducts, filters);
-  const priceRange = getPriceRange();
 
   return {
     ...site,
     products,
     categories: sampleCategories,
-    priceRange,
     activeCategory: filters.category,
   };
 }
 
 export default function Catalogo({ loaderData }: Route.ComponentProps) {
-  const { products, categories, priceRange, activeCategory, brand, banner } = loaderData;
+  const { products, categories, activeCategory, brand, banner } = loaderData;
 
   return (
     <PublicLayout brand={brand} banner={banner}>
@@ -105,8 +100,6 @@ export default function Catalogo({ loaderData }: Route.ComponentProps) {
 
       {/* Barra de filtros */}
       <FilterBar
-        priceMin={priceRange.min}
-        priceMax={priceRange.max}
         showCategoryFilter
         categories={categories}
         activeCategory={activeCategory}

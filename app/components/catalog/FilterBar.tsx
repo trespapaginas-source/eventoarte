@@ -10,7 +10,6 @@ import {
  * Barra de filtros reutilizable para catálogo y categorías.
  *
  * Filtros que maneja (todos viven en la URL para poder compartir/favoritos):
- *  - Precio: rango mínimo y máximo (inputs)
  *  - Orden: relevancia, más vendidos, novedades, precio asc/desc
  *  - Categoría (opcional, sólo si se pasa el listado)
  *
@@ -18,8 +17,6 @@ import {
  */
 
 export interface FilterBarProps {
-  priceMin: number;
-  priceMax: number;
   showCategoryFilter?: boolean;
   categories?: { name: string; slug: string }[];
   activeCategory?: string;
@@ -27,8 +24,6 @@ export interface FilterBarProps {
 }
 
 export function FilterBar({
-  priceMin,
-  priceMax,
   showCategoryFilter = false,
   categories = [],
   activeCategory,
@@ -39,8 +34,6 @@ export function FilterBar({
 
   // Valores actuales desde la URL
   const currentSort = (searchParams.get("orden") as SortOption) ?? "relevancia";
-  const currentMinPrice = searchParams.get("min");
-  const currentMaxPrice = searchParams.get("max");
   const currentCategory = searchParams.get("categoria") ?? activeCategory ?? "";
 
   function updateFilter(key: string, value: string) {
@@ -57,7 +50,7 @@ export function FilterBar({
     setSearchParams(new URLSearchParams());
   }
 
-  const hasActiveFilters = currentMinPrice || currentMaxPrice || currentCategory;
+  const hasActiveFilters = currentCategory;
 
   return (
     <div className="border-b border-border bg-surface">
@@ -104,29 +97,6 @@ export function FilterBar({
         {/* Panel de filtros (siempre visible en desktop, toggle en móvil) */}
         <div className={`${mobileFiltersOpen ? "block" : "hidden"} mt-4 md:block`}>
           <div className="flex flex-wrap items-start gap-x-8 gap-y-5">
-            {/* Precio */}
-            <FilterGroup label="Precio">
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  placeholder={String(priceMin)}
-                  value={currentMinPrice ?? ""}
-                  onChange={(e) => updateFilter("min", e.target.value)}
-                  className="w-24 border border-border bg-surface px-2 py-1.5 text-xs text-brand-ink focus:border-brand-ink focus:outline-none"
-                  aria-label="Precio mínimo"
-                />
-                <span className="text-xs text-brand-ink-light">—</span>
-                <input
-                  type="number"
-                  placeholder={String(priceMax)}
-                  value={currentMaxPrice ?? ""}
-                  onChange={(e) => updateFilter("max", e.target.value)}
-                  className="w-24 border border-border bg-surface px-2 py-1.5 text-xs text-brand-ink focus:border-brand-ink focus:outline-none"
-                  aria-label="Precio máximo"
-                />
-              </div>
-            </FilterGroup>
-
             {/* Categoría (opcional) */}
             {showCategoryFilter && categories.length > 0 ? (
               <FilterGroup label="Categoría">

@@ -11,7 +11,6 @@ import {
   getProductsByCategory,
   getCategoryBySlug,
   applyFilters,
-  getPriceRange,
   type SortOption,
 } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
@@ -43,8 +42,6 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
 
   const filters = {
     audience: url.searchParams.get("publico") ?? "",
-    minPrice: url.searchParams.get("min") ? Number(url.searchParams.get("min")) : undefined,
-    maxPrice: url.searchParams.get("max") ? Number(url.searchParams.get("max")) : undefined,
     sort: (url.searchParams.get("orden") as SortOption) ?? "relevancia",
   };
 
@@ -55,19 +52,17 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   const category = getCategoryBySlug(slug);
   const baseProducts = getProductsByCategory(slug);
   const products = applyFilters(baseProducts, filters);
-  const priceRange = getPriceRange(baseProducts.length ? baseProducts : undefined);
 
   return {
     ...site,
     products,
     category,
     categories: sampleCategories,
-    priceRange,
   };
 }
 
 export default function Categoria({ loaderData }: Route.ComponentProps) {
-  const { products, category, categories, priceRange, brand, banner } = loaderData;
+  const { products, category, categories, brand, banner } = loaderData;
   const title = category?.name ?? "Categoría";
 
   return (
@@ -115,8 +110,6 @@ export default function Categoria({ loaderData }: Route.ComponentProps) {
       </section>
 
       <FilterBar
-        priceMin={priceRange.min}
-        priceMax={priceRange.max}
         totalResults={products.length}
       />
 
