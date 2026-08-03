@@ -114,34 +114,44 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <PublicLayout brand={brand} banner={banner}>
       {/* ===================== HERO ===================== */}
       <section className="relative overflow-hidden border-b border-border bg-surface">
-        {/* Fondo móvil: una sola foto a pantalla completa (oculta en desktop) */}
+        {/* Fondo: una sola foto (editabe desde el CMS).
+            Desktop: horizontal, cubre todo el hero.
+            Móvil: recorte vertical (aspecto ~3/4) para optimizar espacio. */}
         <div
-          className="absolute inset-0 bg-cover bg-center md:hidden"
+          className="absolute inset-0 bg-cover bg-center md:bg-cover"
           style={{ backgroundImage: `url(${heroImages[0]})` }}
           aria-hidden="true"
         />
-        {/* Overlay para legibilidad del texto sobre el fondo en móvil */}
-        <div className="absolute inset-0 bg-surface/75 md:hidden" aria-hidden="true" />
+        {/* Cortina tenue: degradado oscuro suave (no negro total) para que el
+            texto se lea bien sin apagar los colores de la foto. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.48) 45%, rgba(26,26,26,0.25) 100%)",
+          }}
+          aria-hidden="true"
+        />
 
         <div className="container-page relative grid items-center gap-8 py-14 md:grid-cols-2 md:py-20">
           {/* Texto */}
           <div className="relative z-10">
-            <span className="inline-flex items-center gap-1.5 border border-border bg-surface-off px-4 py-1.5 text-[11px] font-bold uppercase tracking-[2px] text-brand-ink">
+            <span className="inline-flex items-center gap-1.5 border border-white/30 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[2px] text-white backdrop-blur-sm">
               <Sparkles size={12} strokeWidth={1.5} />
               Personalización para cada ocasión
             </span>
-            <h1 className="mt-5 text-balance font-display text-4xl font-extrabold leading-tight text-brand-ink md:text-5xl">
+            <h1 className="mt-5 text-balance font-display text-4xl font-extrabold leading-tight text-white md:text-5xl">
               Recordatorios que celebran tus{" "}
               <span className="italic font-light">momentos</span>
             </h1>
-            <p className="mt-5 max-w-md text-lg leading-relaxed text-brand-ink-soft">
+            <p className="mt-5 max-w-md text-lg leading-relaxed text-white/85">
               Morrales, loncheras, tulas y recordatorios personalizados para
               cumpleaños, baby shower, quinceaños y todas tus celebraciones.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <BrandLink
                 to="/catalogo"
-                className="inline-flex items-center border border-brand-ink bg-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
+                className="inline-flex items-center border border-white bg-white px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-transparent hover:text-white"
               >
                 Ver catálogo
               </BrandLink>
@@ -149,7 +159,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 href={waSimple}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+                className="inline-flex items-center gap-2 border border-white/60 px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-white hover:text-brand-ink"
               >
                 <MessageCircle size={14} strokeWidth={1.5} />
                 WhatsApp
@@ -157,7 +167,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
 
             {/* Trust badges */}
-            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-brand-ink-soft">
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-white/80">
               <span className="flex items-center gap-1.5">
                 <Sparkles size={13} strokeWidth={1.5} />
                 Fabricación nacional
@@ -173,27 +183,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          {/* Collage visual — fotos editables desde el CMS */}
-          {/* Desktop: grilla de 4 fotos (2 cols × 2 rows, la primera alta) */}
-          <div className="relative hidden md:block">
-            <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
-              <img
-                src={heroImages[0]}
-                alt="Ejemplo 1"
-                className="row-span-2 h-full w-full rounded-xl object-cover shadow-md"
-                loading="eager"
-              />
-              {heroImages.slice(1, 4).map((src: string, i: number) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt={`Ejemplo ${i + 2}`}
-                  className="h-full w-full rounded-xl object-cover shadow-md"
-                  loading="eager"
-                />
-              ))}
-            </div>
-          </div>
+          {/* Espacio reservado para el lado derecho del hero en desktop.
+              La foto de fondo ya cubre todo, así que aquí no va contenido visual. */}
+          <div className="hidden md:block" aria-hidden="true" />
         </div>
       </section>
 

@@ -129,9 +129,11 @@ export default function AdminAjustes({ loaderData, actionData }: Route.Component
               </Field>
             </Section>
 
-            {/* Fotos del Hero (home) */}
-            <Section title="Fotos del Hero (inicio)">
-              <HeroImageEditor initialJson={get("hero.images")} />
+            {/* Foto del Hero (home) */}
+            <Section title="Foto del Hero (inicio)">
+              <Field label="Foto principal del hero" name="hero.images">
+                <HeroImageEditor initialJson={get("hero.images")} />
+              </Field>
             </Section>
 
             {/* Banner superior */}
