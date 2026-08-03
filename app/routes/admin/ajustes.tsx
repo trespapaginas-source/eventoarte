@@ -10,7 +10,7 @@ import { getAllSettings, upsertManySettings } from "~/lib/db/mutations";
 
 export function meta() {
   return [
-    { title: "Ajustes — Admin eventoarte.co" },
+    { title: "Ajustes — Admin recuerdos.store" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -68,10 +68,10 @@ export default function AdminAjustes({ loaderData, actionData }: Route.Component
             <TextInput name="site.whatsapp" defaultValue={get("site.whatsapp")} placeholder="573001234567" />
           </Field>
           <Field label="Usuario de Instagram" name="site.instagram">
-            <TextInput name="site.instagram" defaultValue={get("site.instagram")} placeholder="eventoarte.co" />
+            <TextInput name="site.instagram" defaultValue={get("site.instagram")} placeholder="recuerdos.store" />
           </Field>
           <Field label="URL pública del sitio" name="site.public_url">
-            <TextInput name="site.public_url" defaultValue={get("site.public_url")} placeholder="https://eventoarte.co" />
+            <TextInput name="site.public_url" defaultValue={get("site.public_url")} placeholder="https://recuerdos.store" />
           </Field>
         </Section>
 

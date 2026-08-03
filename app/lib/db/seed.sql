@@ -1,4 +1,4 @@
--- Seed inicial de eventoarte.co — categorías y ocasiones.
+-- Seed inicial de recuerdos.store — categorías y ocasiones.
 -- Aplicar con: npm run db:seed:local
 -- (Los productos de muestra se gestionan desde el CMS en la Fase 3.)
 
@@ -22,8 +22,8 @@ INSERT INTO occasions (name, slug, icon, sort_order, active) VALUES
 -- ====== Settings globales ======
 INSERT INTO settings (key, value) VALUES
   ('site.whatsapp', '573000000000'),
-  ('site.instagram', 'https://instagram.com/eventoarte.co'),
-  ('site.public_url', 'https://eventoarte.co'),
-  ('seo.default_title', 'eventoarte.co — Recordatorios personalizados para eventos'),
+  ('site.instagram', 'https://instagram.com/recuerdos.store'),
+  ('site.public_url', 'https://recuerdos.store'),
+  ('seo.default_title', 'recuerdos.store — Recordatorios personalizados para eventos'),
   ('seo.default_desc', 'Morrales, loncheras, kits y recordatorios personalizados para celebrar tus momentos. Hecho en Colombia.'),
   ('footer.text', 'Recordatorios y productos personalizados para celebrar tus momentos. Hecho en Colombia.');

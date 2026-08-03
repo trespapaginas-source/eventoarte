@@ -48,7 +48,7 @@ export function productJsonLd(opts: {
     sku: opts.sku,
     image: [opts.image],
     description: opts.description,
-    brand: { "@type": "Brand", name: "eventoarte.co" },
+    brand: { "@type": "Brand", name: "recuerdos.store" },
     offers: {
       "@type": "Offer",
       priceCurrency: "COP",
@@ -63,10 +63,10 @@ export function organizationJsonLd(publicUrl: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "eventoarte.co",
+    name: "recuerdos.store",
     url: publicUrl,
     logo: `${publicUrl}/logo.png`,
-    sameAs: ["https://instagram.com/eventoarte.co"],
+    sameAs: ["https://instagram.com/recuerdos.store"],
   };
 }
 

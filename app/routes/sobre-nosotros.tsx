@@ -4,7 +4,7 @@ import { PublicLayout } from "~/components/layout/PublicLayout";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Sobre nosotros — eventoarte.co" },
+    { title: "Sobre nosotros — recuerdos.store" },
     { name: "description", content: "Fabricación nacional de recordatorios personalizados para eventos en Colombia." },
   ];
 }
@@ -18,7 +18,7 @@ export default function SobreNosotros({ loaderData }: Route.ComponentProps) {
   return (
     <PublicLayout waNumber={waNumber}>
       <section className="container-page py-12">
-        <h1 className="text-3xl md:text-4xl">Sobre eventoarte.co</h1>
+        <h1 className="text-3xl md:text-4xl">Sobre recuerdos.store</h1>
         <div className="mt-6 max-w-2xl space-y-4 text-brand-ink-soft">
           <p>
             Somos una empresa colombiana dedicada a la fabricación y personalización de

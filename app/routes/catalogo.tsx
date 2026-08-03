@@ -15,9 +15,9 @@ import {
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
 export function meta(_: Route.MetaArgs) {
-  const publicUrl = "https://eventoarte.co";
+  const publicUrl = "https://recuerdos.store";
   return [
-    { title: "Catálogo — eventoarte.co" },
+    { title: "Catálogo — recuerdos.store" },
     {
       name: "description",
       content:
@@ -25,7 +25,7 @@ export function meta(_: Route.MetaArgs) {
     },
     { tagName: "link", rel: "canonical", href: `${publicUrl}/catalogo` },
     { property: "og:type", content: "website" },
-    { property: "og:title", content: "Catálogo — eventoarte.co" },
+    { property: "og:title", content: "Catálogo — recuerdos.store" },
     {
       property: "og:description",
       content:
@@ -118,7 +118,7 @@ export default function Catalogo({ loaderData }: Route.ComponentProps) {
             <p className="mt-4 text-brand-ink-soft">
               No encontramos productos con esos filtros.
             </p>
-            <Link to="/catalogo" className="mt-4 inline-block text-brand-coral hover:underline">
+            <Link to="/catalogo" className="mt-4 inline-block text-gradient-brand hover:underline">
               Limpiar filtros y ver todo
             </Link>
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Route } from "./+types/producto";
 import { Link } from "react-router";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
 import { buildWhatsAppProductLink } from "~/lib/whatsapp";
@@ -9,7 +10,7 @@ import { sampleProducts, type SampleProduct } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 import { productJsonLd, breadcrumbJsonLd } from "~/lib/seo";
 
-const PUBLIC_URL = "https://eventoarte.co";
+const PUBLIC_URL = "https://recuerdos.store";
 
 // En React Router v8 el `data` del loader no siempre se tipa en meta args.
 // Para máxima robustez, resolvemos el producto desde params.slug directamente.
@@ -17,14 +18,14 @@ export function meta({ params }: Route.MetaArgs) {
   const product = sampleProducts.find((p) => p.slug === params.slug);
   if (!product) {
     return [
-      { title: "Producto no encontrado — eventoarte.co" },
+      { title: "Producto no encontrado — recuerdos.store" },
       { name: "description", content: "El producto que buscas no está disponible." },
     ];
   }
   const url = `${PUBLIC_URL}/producto/${product.slug}`;
   const image = product.image ?? product.gallery?.[0];
   return [
-    { title: `${product.name} — eventoarte.co` },
+    { title: `${product.name} — recuerdos.store` },
     {
       name: "description",
       content:
@@ -102,7 +103,6 @@ export async function loader({ context, params }: Route.LoaderArgs) {
 export default function Producto({ loaderData }: Route.ComponentProps) {
   const { product, related, waLink, waNumber, jsonLdProduct, jsonLdBreadcrumb } = loaderData;
   const p = product;
-  const image = p.image ?? p.gallery?.[0];
 
   // Detección de scroll para activar la barra inferior fija (sticky bar)
   const ctaRef = useRef<HTMLDivElement | null>(null);
@@ -163,28 +163,7 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
 
         <div className="grid gap-8 md:grid-cols-2 md:gap-12 lg:gap-16">
           {/* ===== Galería ===== */}
-          <div>
-            <div className="relative overflow-hidden border border-border bg-surface-off">
-              {/* Badges discretos */}
-              <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
-                {p.isNew ? (
-                  <span className="bg-pastel-blush px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-brand-ink">
-                    Nuevo
-                  </span>
-                ) : null}
-                {p.isBestseller ? (
-                  <span className="bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
-                    Más vendido
-                  </span>
-                ) : null}
-              </div>
-              <img
-                src={image}
-                alt={p.name}
-                className="aspect-square w-full object-cover"
-              />
-            </div>
-          </div>
+          <ProductGallery product={p} />
 
           {/* ===== Info minimalista ===== */}
           <div className="flex flex-col">
@@ -274,7 +253,7 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
                 <ul className="space-y-1.5">
                   {careInstructions(p).map((tip, i) => (
                     <li key={i} className="flex gap-2">
-                      <span className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-brand-coral" />
+                      <span className="mt-1.5 inline-block h-1 w-1 shrink-0 rounded-full bg-gradient-brand" />
                       <span>{tip}</span>
                     </li>
                   ))}
@@ -400,6 +379,144 @@ function StickyCotizarBar({
           Cotizar
         </a>
       </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   Galería de producto (imagen principal + thumbnails)
+   ============================================================ */
+
+/**
+ * Resuelve la lista de URLs de imagen de un producto.
+ * Soporta datos de muestra (p.gallery / p.image) y productos de BD
+ * (array `images` con r2Key servidas vía /media/*).
+ */
+function resolveGallery(product: SampleProduct): string[] {
+  // Producto de BD: el loader adjunta `images` con r2Key
+  const imgs = (product as any).images as
+    | { r2Key: string; sortOrder: number }[]
+    | undefined;
+  if (Array.isArray(imgs) && imgs.length > 0) {
+    const sorted = [...imgs].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
+    return sorted.map((i) => `/media/${i.r2Key}`);
+  }
+  // Datos de muestra
+  if (Array.isArray(product.gallery) && product.gallery.length > 0) {
+    return product.gallery;
+  }
+  return product.image ? [product.image] : [];
+}
+
+function ProductGallery({ product }: { product: SampleProduct }) {
+  const gallery = resolveGallery(product);
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  // Si el producto cambia (navegación client-side), resetear el índice
+  useEffect(() => {
+    setActiveIdx(0);
+  }, [product.id]);
+
+  const hasMultiple = gallery.length > 1;
+  const active = gallery[activeIdx] ?? gallery[0] ?? "";
+
+  const go = (dir: -1 | 1) => {
+    setActiveIdx((prev) => {
+      if (gallery.length <= 1) return 0;
+      const next = (prev + dir + gallery.length) % gallery.length;
+      return next;
+    });
+  };
+
+  return (
+    <div>
+      {/* Imagen principal */}
+      <div
+        className="group relative overflow-hidden border border-border bg-surface-off"
+        onKeyDown={(e) => {
+          if (e.key === "ArrowRight") go(1);
+          if (e.key === "ArrowLeft") go(-1);
+        }}
+        tabIndex={hasMultiple ? 0 : -1}
+        role={hasMultiple ? "group" : undefined}
+        aria-label={hasMultiple ? "Galería de imágenes (usa flechas)" : undefined}
+      >
+        {/* Badges discretos */}
+        <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
+          {product.isNew ? (
+            <span className="bg-gradient-brand px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
+              Nuevo
+            </span>
+          ) : null}
+          {product.isBestseller ? (
+            <span className="bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
+              Más vendido
+            </span>
+          ) : null}
+        </div>
+
+        {/* Contador (solo si hay múltiples) */}
+        {hasMultiple ? (
+          <span className="absolute right-3 top-3 z-10 bg-brand-ink/70 px-2 py-0.5 text-[10px] font-medium text-white">
+            {activeIdx + 1} / {gallery.length}
+          </span>
+        ) : null}
+
+        <img
+          src={active}
+          alt={product.name}
+          className="aspect-square w-full object-cover"
+        />
+
+        {/* Flechas de navegación (desktop hover) */}
+        {hasMultiple ? (
+          <>
+            <button
+              type="button"
+              onClick={() => go(-1)}
+              aria-label="Imagen anterior"
+              className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white/80 text-brand-ink opacity-0 backdrop-blur transition-opacity hover:bg-white group-hover:opacity-100 focus:opacity-100"
+            >
+              <ChevronLeft size={18} strokeWidth={1.5} />
+            </button>
+            <button
+              type="button"
+              onClick={() => go(1)}
+              aria-label="Imagen siguiente"
+              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center bg-white/80 text-brand-ink opacity-0 backdrop-blur transition-opacity hover:bg-white group-hover:opacity-100 focus:opacity-100"
+            >
+              <ChevronRight size={18} strokeWidth={1.5} />
+            </button>
+          </>
+        ) : null}
+      </div>
+
+      {/* Thumbnails */}
+      {hasMultiple ? (
+        <div className="mt-3 grid grid-cols-6 gap-2">
+          {gallery.map((src, idx) => (
+            <button
+              key={`${src}-${idx}`}
+              type="button"
+              onClick={() => setActiveIdx(idx)}
+              aria-label={`Ver imagen ${idx + 1}`}
+              aria-current={idx === activeIdx}
+              className={`relative aspect-square overflow-hidden border bg-surface-off transition-all ${
+                idx === activeIdx
+                  ? "border-brand-ink ring-1 ring-brand-ink"
+                  : "border-border hover:border-brand-ink-light"
+              }`}
+            >
+              <img
+                src={src}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

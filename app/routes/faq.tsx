@@ -4,7 +4,7 @@ import { PublicLayout } from "~/components/layout/PublicLayout";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Preguntas frecuentes — eventoarte.co" },
+    { title: "Preguntas frecuentes — recuerdos.store" },
     { name: "description", content: "Resolvemos tus dudas sobre pedidos, personalización y tiempos de entrega." },
   ];
 }

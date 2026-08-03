@@ -7,7 +7,7 @@ import { listProducts } from "~/lib/db/queries";
 import { sampleProducts } from "~/lib/sample-data";
 
 export function meta(_: Route.MetaArgs) {
-  return [{ title: "Buscar — eventoarte.co" }];
+  return [{ title: "Buscar — recuerdos.store" }];
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {

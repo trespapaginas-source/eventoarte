@@ -8,7 +8,7 @@ import { sampleProducts, sampleCategories } from "~/lib/sample-data";
  */
 export function loader({ context }: Route.LoaderArgs) {
   const base = (
-    context.get(cloudflareContext).env.PUBLIC_URL ?? "https://eventoarte.co"
+    context.get(cloudflareContext).env.PUBLIC_URL ?? "https://recuerdos.store"
   ).replace(/\/$/, "");
   const today = new Date().toISOString().split("T")[0];
 

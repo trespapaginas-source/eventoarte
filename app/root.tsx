@@ -38,7 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#e8645a" />
+        <meta name="theme-color" content="#7ca8e8" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <Meta />
         <Links />
@@ -66,9 +66,9 @@ export function ErrorBoundary() {
 
   return (
     <main className="container-page flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
-      <p className="font-mono text-brand-coral">{status}</p>
+      <p className="font-mono text-gradient-brand">{status}</p>
       <h1 className="text-3xl">{message}</h1>
-      <a href="/" className="text-brand-coral underline">
+      <a href="/" className="text-gradient-brand underline">
         Volver al inicio
       </a>
     </main>

@@ -87,7 +87,12 @@ export const sampleProducts: SampleProduct[] = [
     createdAt: 0,
     updatedAt: 0,
     image: "/images/productos/fotos/morral-safari.jpg",
-    gallery: ["/images/productos/fotos/morral-safari.jpg"],
+    gallery: [
+      "/images/productos/fotos/morral-safari.jpg",
+      "/images/productos/fotos/morral-escolar.jpg",
+      "/images/productos/fotos/lonchera.jpg",
+      "/images/productos/fotos/cangurera.jpg",
+    ],
   },
   {
     id: 2,

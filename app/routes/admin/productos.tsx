@@ -13,7 +13,7 @@ import { formatCOP } from "~/lib/format";
 
 export function meta() {
   return [
-    { title: "Productos — Admin eventoarte.co" },
+    { title: "Productos — Admin recuerdos.store" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

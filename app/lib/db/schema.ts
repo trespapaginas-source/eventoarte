@@ -9,7 +9,7 @@ import { relations, sql } from "drizzle-orm";
 
 /**
  * ============================================================
- * eventoarte.co — Esquema de base de datos (D1 / SQLite + Drizzle)
+ * recuerdos.store — Esquema de base de datos (D1 / SQLite + Drizzle)
  * Sección 11 del Documento Técnico.
  * ============================================================
  * Tablas:

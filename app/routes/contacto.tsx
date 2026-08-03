@@ -6,7 +6,7 @@ import { cloudflareContext } from "~/lib/cloudflare-context";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Contacto — eventoarte.co" },
+    { title: "Contacto — recuerdos.store" },
     {
       name: "description",
       content:
@@ -70,7 +70,7 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
             ) : null}
 
             <a
-              href="https://instagram.com/eventoarte.co"
+              href="https://instagram.com/recuerdos.store"
               target="_blank"
               rel="noreferrer"
               className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
@@ -80,13 +80,13 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
               </span>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">Instagram</p>
-                <p className="text-sm font-medium text-brand-ink">@eventoarte.co</p>
+                <p className="text-sm font-medium text-brand-ink">@recuerdos.store</p>
               </div>
               <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
             </a>
 
             <a
-              href="mailto:hola@eventoarte.co"
+              href="mailto:hola@recuerdos.store"
               className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
             >
               <span className="flex h-11 w-11 items-center justify-center bg-brand-ink text-white">
@@ -94,7 +94,7 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
               </span>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">Correo</p>
-                <p className="text-sm font-medium text-brand-ink">hola@eventoarte.co</p>
+                <p className="text-sm font-medium text-brand-ink">hola@recuerdos.store</p>
               </div>
               <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
             </a>

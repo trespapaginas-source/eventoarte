@@ -17,17 +17,17 @@ import {
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
 /**
- * Home de eventoarte.co — estilo premium inspirado en Vélez.
+ * Home de recuerdos.store — estilo premium inspirado en Vélez.
  * Sección 5.2 del Documento Técnico.
  *
  * Estructura: Barra anuncio → Header → Hero → Categorías (con imagen) →
  * Destacados → Banner CTA → Catálogo → Footer.
  */
 export function meta(_: Route.MetaArgs) {
-  const publicUrl = "https://eventoarte.co";
+  const publicUrl = "https://recuerdos.store";
   return [
     {
-      title: "eventoarte.co — Recordatorios personalizados para tus celebraciones",
+      title: "recuerdos.store — Recordatorios personalizados para tus celebraciones",
     },
     {
       name: "description",
@@ -36,7 +36,7 @@ export function meta(_: Route.MetaArgs) {
     },
     { tagName: "link", rel: "canonical", href: `${publicUrl}/` },
     { property: "og:type", content: "website" },
-    { property: "og:title", content: "eventoarte.co — Recordatorios personalizados" },
+    { property: "og:title", content: "recuerdos.store — Recordatorios personalizados" },
     {
       property: "og:description",
       content:

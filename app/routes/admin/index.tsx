@@ -13,7 +13,7 @@ import { products } from "~/lib/db/schema";
 
 export function meta() {
   return [
-    { title: "Dashboard — eventoarte.co" },
+    { title: "Dashboard — recuerdos.store" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -129,7 +129,7 @@ function StatCard({
       <div className="flex items-center justify-between">
         <Icon size={16} strokeWidth={1.5} className="text-brand-ink-light" />
         {highlight ? (
-          <span className="h-2 w-2 rounded-full bg-brand-coral" />
+          <span className="h-2 w-2 rounded-full bg-gradient-brand" />
         ) : null}
       </div>
       <p className="mt-3 text-2xl font-bold text-brand-ink">{value}</p>

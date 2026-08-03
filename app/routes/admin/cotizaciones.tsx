@@ -14,7 +14,7 @@ import {
 
 export function meta() {
   return [
-    { title: "Cotizaciones — Admin eventoarte.co" },
+    { title: "Cotizaciones — Admin recuerdos.store" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

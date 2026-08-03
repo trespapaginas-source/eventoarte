@@ -1,9 +1,9 @@
 {
-  "name": "eventoarte",
+  "name": "recuerdos",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "eventoarte.co — Catálogo de recordatorios y productos personalizados para eventos",
+  "description": "recuerdos.store — Catálogo de recordatorios y productos personalizados para eventos",
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",

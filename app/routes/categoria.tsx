@@ -15,17 +15,17 @@ import { cloudflareContext } from "~/lib/cloudflare-context";
 
 export function meta({ params }: Route.MetaArgs) {
   const cat = getCategoryBySlug(params.slug ?? "");
-  const publicUrl = "https://eventoarte.co";
+  const publicUrl = "https://recuerdos.store";
   const slug = params.slug ?? "";
   return [
-    { title: `${cat?.name ?? "Categoría"} — eventoarte.co` },
+    { title: `${cat?.name ?? "Categoría"} — recuerdos.store` },
     {
       name: "description",
       content: `Descubre nuestra colección de ${cat?.name?.toLowerCase() ?? "productos"} personalizados para eventos. Filtra por precio, niños o niñas.`,
     },
     { tagName: "link", rel: "canonical", href: `${publicUrl}/categoria/${slug}` },
     { property: "og:type", content: "website" },
-    { property: "og:title", content: `${cat?.name ?? "Categoría"} — eventoarte.co` },
+    { property: "og:title", content: `${cat?.name ?? "Categoría"} — recuerdos.store` },
   ];
 }
 
@@ -120,7 +120,7 @@ export default function Categoria({ loaderData }: Route.ComponentProps) {
         ) : (
           <div className="py-16 text-center">
             <p className="mt-4 text-brand-ink-soft">No hay productos con esos filtros.</p>
-            <Link to={`/categoria/${category?.slug}`} className="mt-4 inline-block text-brand-coral hover:underline">
+            <Link to={`/categoria/${category?.slug}`} className="mt-4 inline-block text-gradient-brand hover:underline">
               Limpiar filtros
             </Link>
           </div>

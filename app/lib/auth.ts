@@ -20,7 +20,7 @@ import {
  * ============================================================
  */
 
-const SESSION_COOKIE = "eventoarte_admin";
+const SESSION_COOKIE = "recuerdos_admin";
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 días
 const PBKDF2_ITERATIONS = 100_000;
 const HASH_ALGO = "SHA-256";

@@ -43,7 +43,7 @@ export function ProductCard({ product }: ProductCardProps) {
         </span>
       ) : null}
       {product.isNew ? (
-        <span className="absolute right-3 top-3 z-10 bg-pastel-blush px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-brand-ink">
+        <span className="absolute right-3 top-3 z-10 bg-gradient-brand px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
           Nuevo
         </span>
       ) : null}

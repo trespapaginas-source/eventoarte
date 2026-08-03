@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "eventoarte",
+  "name": "recuerdos",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "main": "./workers/app.ts",
@@ -23,18 +23,15 @@
   ],
 
   // R2 — almacenamiento de imágenes subidas desde el CMS.
-  // PASOS PARA ACTIVAR (necesario para subir fotos desde el panel):
-  //   1. Ve a https://dash.cloudflare.com → R2 Object Storage → activa el servicio
-  //   2. Crea un bucket llamado "eventoarte-media"
-  //   3. Descomenta el bloque de abajo
-  // "r2_buckets": [
-  //   { "binding": "MEDIA", "bucket_name": "eventoarte-media" }
-  // ],
+  // Bucket "recuerdos-media" ya creado y activo en el dashboard de Cloudflare.
+  "r2_buckets": [
+    { "binding": "MEDIA", "bucket_name": "recuerdos-media" }
+  ],
 
   // ====== Variables públicas (no sensibles) ======
   "vars": {
     "WA_NUMBER": "573000000000",
-    "PUBLIC_URL": "https://eventoarte.co",
-    "SITE_NAME": "eventoarte.co"
+    "PUBLIC_URL": "https://recuerdos.store",
+    "SITE_NAME": "recuerdos.store"
   }
 }

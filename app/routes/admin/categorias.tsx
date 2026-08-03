@@ -21,7 +21,7 @@ import { categorySchema, slugify } from "~/lib/validation";
 
 export function meta() {
   return [
-    { title: "Categorías — Admin eventoarte.co" },
+    { title: "Categorías — Admin recuerdos.store" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }

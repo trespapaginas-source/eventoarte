@@ -5,7 +5,7 @@ import { ProductCard } from "~/components/catalog/ProductCard";
 import { sampleProducts } from "~/lib/sample-data";
 
 export function meta({ params }: Route.MetaArgs) {
-  return [{ title: `${params.slug} — eventoarte.co` }];
+  return [{ title: `${params.slug} — recuerdos.store` }];
 }
 
 export async function loader({ context }: Route.LoaderArgs) {

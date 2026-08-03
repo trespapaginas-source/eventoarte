@@ -7,7 +7,7 @@ import { quoteInsertSchema } from "~/lib/validation";
 
 export function meta(_: Route.MetaArgs) {
   return [
-    { title: "Solicitar cotización — eventoarte.co" },
+    { title: "Solicitar cotización — recuerdos.store" },
     { name: "description", content: "Cuéntanos sobre tu evento y te enviamos una cotización a la medida." },
   ];
 }
@@ -133,7 +133,7 @@ function Field({
         name={name}
         type={type}
         required={required}
-        className="w-full rounded-md border border-border bg-surface px-3 py-2 focus:border-brand-coral focus:outline-none"
+                    className="w-full rounded-md border border-border bg-surface px-3 py-2 focus:border-brand focus:outline-none"
       />
     </div>
   );

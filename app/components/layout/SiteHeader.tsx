@@ -1,9 +1,10 @@
 import { Link, Form } from "react-router";
 import { useState } from "react";
 import { Search, Menu, X, MessageCircle } from "lucide-react";
+import { Logo } from "./Logo";
 
 /**
- * Header público de eventoarte.co — estilo editorial minimalista.
+ * Header público de recuerdos.store — estilo editorial minimalista.
  * Blanco y negro predominante, sin emojis.
  *
  * Estructura: barra superior fina + header principal con logo, navegación por
@@ -36,12 +37,7 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
       <div className="container-page">
         <div className="flex h-20 items-center gap-4">
           {/* Logo */}
-          <Link
-            to="/"
-            className="text-2xl font-extrabold tracking-tight text-brand-ink transition-opacity hover:opacity-70 md:text-3xl"
-          >
-            eventoarte<span className="text-brand-ink-light">.co</span>
-          </Link>
+          <Logo to="/" size={32} textClassName="text-2xl md:text-3xl" />
 
           {/* Navegación desktop */}
           <nav

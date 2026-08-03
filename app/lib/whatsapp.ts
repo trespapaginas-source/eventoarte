@@ -19,7 +19,7 @@ export function buildWhatsAppProductLink(
   publicUrl: string,
 ): string {
   const lines = [
-    "¡Hola eventoarte! Quiero cotizar:",
+    "¡Hola Recuerdos! Quiero cotizar:",
     `• ${product.name}`,
     `• Código: ${product.code}`,
     `• Cantidad mínima: ${product.minQty} u`,
@@ -31,7 +31,7 @@ export function buildWhatsAppProductLink(
 
 export function buildWhatsAppGeneralLink(waNumber: string): string {
   const text = encodeURIComponent(
-    "¡Hola eventoarte! Quiero solicitar una cotización para un evento.",
+    "¡Hola Recuerdos! Quiero solicitar una cotización para un evento.",
   );
   return `https://wa.me/${waNumber}?text=${text}`;
 }

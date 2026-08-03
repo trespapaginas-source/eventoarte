@@ -18,7 +18,7 @@ export async function action({ context, request }: Route.ActionArgs) {
   const { env } = context.get(cloudflareContext);
 
   if (!env.MEDIA) {
-    return json({ error: "R2 no está activo. Activa el bucket 'eventoarte-media' en el dashboard de Cloudflare." }, 503);
+    return json({ error: "R2 no está activo. Activa el bucket 'recuerdos-media' en el dashboard de Cloudflare." }, 503);
   }
 
   const form = await request.formData();

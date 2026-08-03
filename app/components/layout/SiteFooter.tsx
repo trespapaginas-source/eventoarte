@@ -1,8 +1,9 @@
 import { Link } from "react-router";
 import { MessageCircle, Camera } from "lucide-react";
+import { Logo } from "./Logo";
 
 /**
- * Footer público de eventoarte.co — estilo editorial minimalista.
+ * Footer público de recuerdos.store — estilo editorial minimalista.
  * Editable desde el CMS en fases posteriores.
  */
 export function SiteFooter({ waNumber }: { waNumber?: string }) {
@@ -12,9 +13,7 @@ export function SiteFooter({ waNumber }: { waNumber?: string }) {
       <div className="container-page grid gap-10 py-14 md:grid-cols-4">
         {/* Marca */}
         <div className="md:col-span-1">
-          <p className="font-display text-2xl font-extrabold text-brand-ink">
-            eventoarte<span className="text-brand-ink-light">.co</span>
-          </p>
+          <Logo textClassName="text-2xl" />
           <p className="mt-3 text-sm leading-relaxed text-brand-ink-soft">
             Recordatorios y productos personalizados para celebrar tus momentos.
             <br />
@@ -68,13 +67,13 @@ export function SiteFooter({ waNumber }: { waNumber?: string }) {
           <ul className="space-y-2.5 text-sm text-brand-ink-soft">
             <li>
               <a
-                href="https://instagram.com/eventoarte.co"
+                href="https://instagram.com/recuerdos.store"
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 transition-colors hover:text-brand-ink"
               >
                 <Camera size={14} strokeWidth={1.5} />
-                @eventoarte.co
+                @recuerdos.store
               </a>
             </li>
           </ul>
@@ -84,7 +83,7 @@ export function SiteFooter({ waNumber }: { waNumber?: string }) {
       {/* Barra inferior */}
       <div className="border-t border-border py-5">
         <p className="container-page text-center text-xs text-brand-ink-soft">
-          © {year} eventoarte.co · Todos los derechos reservados · Hecho en Colombia
+          © {year} recuerdos.store · Todos los derechos reservados · Hecho en Colombia
         </p>
       </div>
     </footer>

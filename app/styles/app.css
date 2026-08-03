@@ -2,31 +2,32 @@
 
 /*
   ============================================================
-  eventoarte.co — Design System (Sección 6 del Documento Técnico)
+  recuerdos.store — Design System
   Tailwind v4 con tokens vía @theme.
   ============================================================
+  Identidad: blanco y negro predominante (canvas editorial) + un ÚNICO
+  degradado azul pastel → lila → rosa pastel como color de marca.
+  El degradado se define una sola vez aquí y se consume vía utilidades
+  (bg-gradient-brand / text-gradient-brand). Nunca se reemplaza por
+  otros tonos: es la firma visual del proyecto.
 */
 
 @theme {
-  /* ---- Paleta: blanco y negro predominante + acentos pastel SÚPER sutiles ----
-     Tienda infantil, pero tono editorial minimalista.
-     El pastel se reserva para detalles mínimos (badge "Nuevo", un hover).
-     Nunca como color de fondo dominante. */
+  /* ---- Degradado de marca (ÚNICO, consistente) ----
+     Azul pastel → lila de transición → rosa pastel.
+     El lila del medio aporta profundidad y movimiento sin estridencias. */
+  --color-brand-from: #7ca8e8; /* azul pastel */
+  --color-brand-via: #a894d9; /* lila de transición */
+  --color-brand-to: #f2a0bd; /* rosa pastel */
+  /* Sólido para casos donde no cabe un gradiente (focus, bordes finos) */
+  --color-brand: #a894d9;
+  --color-brand-dark: #8a7bc7;
 
-  /* Acentos pastel (muy desaturados, uso puntual) */
-  --color-brand-coral: #e8645a;
-  --color-brand-coral-dark: #d14e45;
+  /* Acentos neutros de apoyo (uso puntual, NO son la identidad) */
   --color-brand-mustard: #f2b544;
   --color-brand-sage: #7fa88c;
 
-  /* Pastel suave: rosa empolvado MUY claro para acentos mínimos */
-  --color-pastel-blush: #f7e8ea;
-  --color-pastel-mint: #e8f0ea;
-  --color-pastel-sky: #e8eef5;
-  --color-pastel-butter: #f7f0e0;
-  --color-pastel-lilac: #ede8f2;
-
-  /* Crema cálida neutra (casi blanco, NO rosada) */
+  /* Crema cálida neutra (casi blanco) */
   --color-brand-cream: #fafafa;
 
   /* Tinta casi-negra cálida (premium, NO negro puro) */
@@ -46,7 +47,7 @@
   --color-border-strong: #1a1a1a;
 
   /* Acento exclusivo para badges de alta prioridad */
-  --color-accent: #f19e1c;
+  --color-accent: #8a7bc7;
 
   /* Estados */
   --color-success: #30bf54;
@@ -115,9 +116,9 @@ h5 {
   }
 }
 
-/* Foco accesible visible */
+/* Foco accesible visible (usa el sólido de marca, accesible sobre blanco) */
 :focus-visible {
-  outline: 3px solid var(--color-brand-coral);
+  outline: 3px solid var(--color-brand);
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -183,14 +184,65 @@ h5 {
   color: #fff;
 }
 
-/* Badge cinta vertical rotada (estilo "Exclusivo Online" de Vélez) */
+/* ====== Utilidades del degradado de marca ======
+   Un solo degradado, siempre el mismo. Se define aquí como variable
+   para que fondo, texto y borde usen exactamente los mismos stops. */
+
+:root {
+  --gradient-brand: linear-gradient(
+    135deg,
+    var(--color-brand-from) 0%,
+    var(--color-brand-via) 45%,
+    var(--color-brand-to) 100%
+  );
+}
+
+/* Fondo con el degradado de marca */
+@utility bg-gradient-brand {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-brand-from) 0%,
+    var(--color-brand-via) 45%,
+    var(--color-brand-to) 100%
+  );
+}
+
+/* Texto con el degradado de marca (clip al texto) */
+@utility text-gradient-brand {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-brand-from) 0%,
+    var(--color-brand-via) 45%,
+    var(--color-brand-to) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Bordes con el degradado de marca (técnica de mascara) */
+@utility border-gradient-brand {
+  border: 1px solid transparent;
+  background-image: linear-gradient(var(--color-surface), var(--color-surface)),
+    linear-gradient(
+      135deg,
+      var(--color-brand-from) 0%,
+      var(--color-brand-via) 45%,
+      var(--color-brand-to) 100%
+    );
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+/* Badge cinta vertical rotada */
 .ribbon-vertical {
   position: absolute;
   top: 50%;
   left: -2rem;
   transform: translateY(-50%) rotate(-90deg);
   transform-origin: center;
-  background: var(--color-accent);
+  background-image: var(--gradient-brand);
   color: #fff;
   font-size: 11px;
   font-weight: 500;

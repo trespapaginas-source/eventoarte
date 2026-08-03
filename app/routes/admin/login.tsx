@@ -11,10 +11,11 @@ import {
 import { getDb } from "~/lib/db/client";
 import { Field, TextInput } from "~/components/ui/Field";
 import { Button } from "~/components/ui/Toggle";
+import { Logo } from "~/components/layout/Logo";
 
 export function meta() {
   return [
-    { title: "Iniciar sesión — eventoarte.co" },
+    { title: "Iniciar sesión — recuerdos.store" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
@@ -77,8 +78,8 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
   return (
     <main className="flex min-h-screen items-center justify-center bg-surface-off px-4">
       <div className="w-full max-w-sm border border-border bg-surface p-8">
-        <a href="/" className="block text-center text-xl font-extrabold tracking-tight text-brand-ink">
-          eventoarte<span className="text-brand-ink-light">.co</span>
+        <a href="/" className="flex justify-center">
+          <Logo textClassName="text-xl" />
         </a>
         <h1 className="mt-6 text-center text-lg font-bold text-brand-ink">
           Panel de administración
@@ -99,7 +100,7 @@ export default function AdminLogin({ actionData }: Route.ComponentProps) {
               type="email"
               required
               autoComplete="email"
-              placeholder="admin@eventoarte.co"
+              placeholder="admin@recuerdos.store"
             />
           </Field>
           <Field label="Contraseña" name="password" required>

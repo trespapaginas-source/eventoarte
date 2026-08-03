@@ -50,11 +50,21 @@ export function ProductForm({ product, images: initialImages, categories }: Prod
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const MAX_IMAGES = 6;
+  const atLimit = images.length >= MAX_IMAGES;
+
   async function handleUpload(files: FileList | null) {
     if (!files || files.length === 0) return;
+    // Solo tomamos las necesarias hasta llegar al máximo de 6
+    const remaining = MAX_IMAGES - images.length;
+    if (remaining <= 0) {
+      setUploadError(`Máximo ${MAX_IMAGES} fotos por producto.`);
+      return;
+    }
+    const toUpload = Array.from(files).slice(0, remaining);
     setUploading(true);
     setUploadError(null);
-    for (const file of Array.from(files)) {
+    for (const file of toUpload) {
       const fd = new FormData();
       fd.append("file", file);
       try {
@@ -130,12 +140,17 @@ export function ProductForm({ product, images: initialImages, categories }: Prod
           ))}
           <button
             type="button"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-            className="flex h-24 w-24 flex-col items-center justify-center gap-1 border border-dashed border-border text-brand-ink-light transition-colors hover:border-brand-ink hover:text-brand-ink disabled:opacity-50"
+            onClick={() => !atLimit && fileRef.current?.click()}
+            disabled={uploading || atLimit}
+            className="flex h-24 w-24 flex-col items-center justify-center gap-1 border border-dashed border-border text-brand-ink-light transition-colors hover:border-brand-ink hover:text-brand-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:text-brand-ink-light"
           >
             {uploading ? (
               <span className="text-[10px]">Subiendo…</span>
+            ) : atLimit ? (
+              <>
+                <span className="text-base font-bold text-brand-ink">6/6</span>
+                <span className="text-[10px] uppercase tracking-wide">Máx.</span>
+              </>
             ) : (
               <>
                 <Upload size={18} strokeWidth={1.5} />
@@ -152,7 +167,7 @@ export function ProductForm({ product, images: initialImages, categories }: Prod
           <input key={`img-${idx}`} type="hidden" name="images" value={img.r2Key} />
         ))}
         <p className="mt-2 text-[11px] text-brand-ink-light">
-          JPG, PNG o WEBP · Máx 5 MB · La primera es la principal
+          Hasta {MAX_IMAGES} fotos · JPG, PNG o WEBP · Máx 5 MB · La primera es la principal ({images.length}/{MAX_IMAGES})
         </p>
       </Section>
 

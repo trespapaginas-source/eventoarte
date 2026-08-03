@@ -15,7 +15,7 @@ import { productSchema } from "~/lib/validation";
 
 export function meta() {
   return [
-    { title: "Nuevo producto — Admin eventoarte.co" },
+    { title: "Nuevo producto — Admin recuerdos.store" },
     { name: "robots", content: "noindex, nofollow" },
   ];
 }
