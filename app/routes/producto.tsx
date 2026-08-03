@@ -94,7 +94,19 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
             </h1>
             <p className="mt-1 font-mono text-sm text-brand-ink-soft">Ref. {p.code}</p>
 
-            <p className="mt-5 text-lg leading-relaxed text-brand-ink-soft">{p.shortDesc}</p>
+            {/* Badge de público */}
+            {p.audience ? (
+              <div className="mt-3">
+                <Link
+                  to={p.audience === "ninas" ? "/ninas" : p.audience === "ninos" ? "/ninos" : "/catalogo"}
+                  className="inline-block border border-border bg-surface px-3 py-1 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft transition-colors hover:border-brand-coral hover:text-brand-coral"
+                >
+                  {p.audience === "ninas" ? "🎀 Para niñas" : p.audience === "ninos" ? "🚀 Para niños" : "✨ Unisex"}
+                </Link>
+              </div>
+            ) : null}
+
+            <p className="mt-4 text-lg leading-relaxed text-brand-ink-soft">{p.shortDesc}</p>
 
             {/* Precio */}
             <div className="mt-6 rounded-xl border border-border bg-brand-cream p-5">

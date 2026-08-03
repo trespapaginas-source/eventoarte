@@ -21,9 +21,15 @@ export function meta(_: Route.MetaArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const sort = (url.searchParams.get("sort") as any) ?? "featured";
+  const publico = url.searchParams.get("publico") ?? "";
   const { env } = context.get(cloudflareContext);
 
   let products = sampleProducts;
+  if (publico === "ninos" || publico === "ninas") {
+    products = sampleProducts.filter(
+      (p) => p.audience === publico || p.audience === "unisex",
+    );
+  }
   try {
     if (env.DB) {
       const db = getDb(env.DB);
@@ -36,17 +42,18 @@ export async function loader({ context, request }: Route.LoaderArgs) {
   return {
     products,
     categories: sampleCategories,
+    publico,
     waNumber: env.WA_NUMBER,
     publicUrl: env.PUBLIC_URL,
   };
 }
 
 export default function Catalogo({ loaderData }: Route.ComponentProps) {
-  const { products, categories, waNumber, publicUrl } = loaderData;
+  const { products, categories, publico, waNumber, publicUrl } = loaderData;
   return (
     <PublicLayout waNumber={waNumber}>
       {/* Encabezado */}
-      <section className="border-b border-border bg-brand-cream">
+      <section className="border-b border-border bg-surface-off">
         <div className="container-page py-10 text-center">
           <nav className="mb-3 text-xs text-brand-ink-soft" aria-label="Migas de pan">
             <Link to="/" className="hover:text-brand-coral">Inicio</Link>
@@ -62,6 +69,45 @@ export default function Catalogo({ loaderData }: Route.ComponentProps) {
         </div>
       </section>
 
+      {/* Filtros: Niños / Niñas / Todos */}
+      <section className="border-b border-border">
+        <div className="container-page flex flex-wrap items-center justify-center gap-2 py-4">
+          <span className="mr-2 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">
+            Público:
+          </span>
+          <Link
+            to="/catalogo"
+            className={`border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
+              !publico
+                ? "border-brand-ink bg-brand-ink text-white"
+                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
+            }`}
+          >
+            Todos
+          </Link>
+          <Link
+            to="/catalogo?publico=ninos"
+            className={`border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
+              publico === "ninos"
+                ? "border-brand-ink bg-brand-ink text-white"
+                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
+            }`}
+          >
+            🚀 Niños
+          </Link>
+          <Link
+            to="/catalogo?publico=ninas"
+            className={`border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
+              publico === "ninas"
+                ? "border-brand-ink bg-brand-ink text-white"
+                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
+            }`}
+          >
+            🎀 Niñas
+          </Link>
+        </div>
+      </section>
+
       {/* Chips de categorías */}
       <section className="container-page py-6">
         <div className="flex flex-wrap justify-center gap-2">
@@ -69,7 +115,7 @@ export default function Catalogo({ loaderData }: Route.ComponentProps) {
             to="/catalogo"
             className="rounded-pill border border-border bg-surface px-4 py-2 text-sm font-medium text-brand-ink-soft transition-colors hover:border-brand-coral hover:text-brand-coral"
           >
-            Todos
+            Todas
           </Link>
           {categories.map((cat: any) => (
             <Link

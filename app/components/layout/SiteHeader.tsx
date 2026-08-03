@@ -9,6 +9,12 @@ import { useState } from "react";
  * categorías de producto, buscador y CTA de WhatsApp.
  */
 
+// Público (primer nivel de navegación) + categorías de producto
+const NAV_AUDIENCE = [
+  { label: "Niños", to: "/ninos" },
+  { label: "Niñas", to: "/ninas" },
+];
+
 const NAV_CATEGORIES = [
   { label: "Morrales", to: "/categoria/morrales" },
   { label: "Loncheras", to: "/categoria/loncheras" },
@@ -42,20 +48,43 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
             eventoarte<span className="text-brand-coral">.co</span>
           </Link>
 
-          {/* Navegación desktop (tracking 3px, mayúsculas, peso 700 — estilo Vélez) */}
+          {/* Navegación desktop */}
           <nav
-            className="ml-8 hidden flex-1 items-center gap-6 lg:flex"
-            aria-label="Categorías de producto"
+            className="ml-8 hidden flex-1 items-center gap-5 lg:flex"
+            aria-label="Navegación principal"
           >
-            {NAV_CATEGORIES.map((item) => (
+            {/* Niños / Niñas — primer nivel, destacados */}
+            {NAV_AUDIENCE.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
-                className="text-[12px] font-bold uppercase tracking-[2px] text-brand-ink-soft transition-colors hover:text-brand-coral"
+                className="text-[13px] font-bold uppercase tracking-[2px] text-brand-ink transition-colors hover:text-brand-coral"
               >
                 {item.label}
               </Link>
             ))}
+
+            {/* Separador */}
+            <span className="h-4 w-px bg-border" aria-hidden="true" />
+
+            {/* Categorías de producto */}
+            {NAV_CATEGORIES.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="text-[12px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft transition-colors hover:text-brand-coral"
+              >
+                {item.label}
+              </Link>
+            ))}
+
+            {/* Contacto */}
+            <Link
+              to="/contacto"
+              className="ml-auto text-[12px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft transition-colors hover:text-brand-coral"
+            >
+              Contacto
+            </Link>
           </nav>
 
           {/* Buscador (desktop) */}
@@ -116,17 +145,42 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
       {/* Menú móvil desplegable */}
       {mobileOpen ? (
         <div className="border-t border-border bg-surface lg:hidden">
-          <nav className="container-page flex flex-col gap-1 py-4" aria-label="Categorías (móvil)">
+          <nav className="container-page flex flex-col gap-1 py-4" aria-label="Navegación (móvil)">
+            {/* Niños / Niñas primero */}
+            <div className="mb-1 flex gap-2 px-3">
+              {NAV_AUDIENCE.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex-1 rounded-md bg-brand-cream px-4 py-3 text-center text-sm font-bold uppercase tracking-[1.5px] text-brand-ink"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+            <div className="my-1 h-px bg-border" />
+
+            {/* Categorías */}
             {NAV_CATEGORIES.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
-                className="rounded-md px-3 py-2.5 text-sm font-medium text-brand-ink-soft transition-colors hover:bg-brand-cream hover:text-brand-coral"
+                className="rounded-md px-3 py-2.5 text-sm font-medium text-brand-ink-soft transition-colors hover:bg-surface-off hover:text-brand-coral"
               >
                 {item.label}
               </Link>
             ))}
+
+            <div className="my-1 h-px bg-border" />
+            <Link
+              to="/contacto"
+              onClick={() => setMobileOpen(false)}
+              className="rounded-md px-3 py-2.5 text-sm font-medium text-brand-ink-soft transition-colors hover:bg-surface-off hover:text-brand-coral"
+            >
+              Contacto
+            </Link>
 
             {/* Buscador móvil */}
             <Form action="/buscar" className="mt-2">

@@ -19,6 +19,10 @@ export default [
   route("categoria/:slug", "routes/categoria.tsx"),
   route("ocasion/:slug", "routes/ocasion.tsx"),
 
+  // Público: Niños / Niñas (mismo componente, ids distintos)
+  route("ninos", "routes/audience.tsx", { id: "ninos" }),
+  route("ninas", "routes/audience.tsx", { id: "ninas" }),
+
   // Producto y cotización
   route("producto/:slug", "routes/producto.tsx"),
   route("cotizar", "routes/cotizar.tsx"),
