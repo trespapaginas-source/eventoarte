@@ -49,9 +49,27 @@ export async function action({ context, request }: Route.ActionArgs) {
 
   const form = await request.formData();
   const entries: Record<string, string> = {};
+
+  // Los toggles envían dos campos con el mismo name:
+  //   <input type="checkbox" value="true">  (solo si está marcado)
+  //   <input type="hidden" value="false">   (siempre)
+  // Para que el toggle funcione, si hay un checkbox="true" para una clave,
+  // ese valor GANA sobre el hidden="false". Para el resto de campos
+  // (textos, etc.) no hay duplicados y se toman tal cual.
+  const seenKeys = new Map<string, string>();
   for (const [key, value] of form.entries()) {
     const v = String(value).trim();
-    if (v) entries[key] = v;
+    if (!v) continue;
+    const prev = seenKeys.get(key);
+    if (prev === undefined) {
+      seenKeys.set(key, v);
+    } else if (v === "true" && prev === "false") {
+      // checkbox marcado pisa al hidden false
+      seenKeys.set(key, v);
+    }
+  }
+  for (const [key, value] of seenKeys.entries()) {
+    entries[key] = value;
   }
 
   // SEGURIDAD: una marca solo puede escribir sus propias claves.
