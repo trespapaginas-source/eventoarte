@@ -1,4 +1,5 @@
 import type { Route } from "./+types/ocasion";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
 import { sampleProducts } from "~/lib/sample-data";
@@ -8,7 +9,7 @@ export function meta({ params }: Route.MetaArgs) {
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  return { products: sampleProducts, waNumber: context.cloudflare.env.WA_NUMBER, publicUrl: context.cloudflare.env.PUBLIC_URL };
+  return { products: sampleProducts, waNumber: context.get(cloudflareContext).env.WA_NUMBER, publicUrl: context.get(cloudflareContext).env.PUBLIC_URL };
 }
 
 export default function Ocasion({ loaderData, params }: Route.ComponentProps) {

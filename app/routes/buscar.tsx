@@ -1,4 +1,5 @@
 import type { Route } from "./+types/buscar";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
 import { getDb } from "~/lib/db/client";
@@ -12,7 +13,7 @@ export function meta(_: Route.MetaArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q") ?? "";
-  const env = context.cloudflare.env;
+  const env = context.get(cloudflareContext).env;
 
   let results: any[] = q
     ? sampleProducts.filter(

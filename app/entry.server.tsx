@@ -1,21 +1,20 @@
 import { ServerRouter } from "react-router";
 import { isbot } from "isbot";
 import { renderToReadableStream } from "react-dom/server";
-import type { AppLoadContext, EntryContext } from "react-router";
+import type { EntryContext } from "react-router";
 
 /**
  * Entry server para Cloudflare Workers (runtime web estándar, sin Node APIs).
  * - Bots: espera el render completo (mejor SEO).
  * - Humanos: streaming con renderToReadableStream.
  *
- * El contexto de Cloudflare se inyecta como `context.cloudflare` (ver workers/app.ts).
+ * En v8 el loadContext es un RouterContextProvider (no se usa aquí directamente).
  */
 export default async function handleRequest(
   request: Request,
   responseStatusCode: number,
   responseHeaders: Headers,
   routerContext: EntryContext,
-  _loadContext: AppLoadContext,
 ) {
   const userAgent = request.headers.get("user-agent") ?? "";
   const bot = isbot(userAgent);

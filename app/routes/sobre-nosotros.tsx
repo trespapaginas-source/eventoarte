@@ -1,4 +1,5 @@
 import type { Route } from "./+types/sobre-nosotros";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 
 export function meta(_: Route.MetaArgs) {
@@ -9,7 +10,7 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  return { waNumber: context.cloudflare.env.WA_NUMBER };
+  return { waNumber: context.get(cloudflareContext).env.WA_NUMBER };
 }
 
 export default function SobreNosotros({ loaderData }: Route.ComponentProps) {

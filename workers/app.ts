@@ -1,47 +1,23 @@
 /// <reference path="../worker-configuration.d.ts" />
-import { createRequestHandler } from "react-router";
+import { createRequestHandler, RouterContextProvider } from "react-router";
+import { cloudflareContext, type CloudflareEnv } from "../app/lib/cloudflare-context";
 
 /**
- * Tipo Env: agrupa los bindings/vars declarados en wrangler.jsonc y validados
- * por worker-configuration.d.ts (que los declara como `const` globales).
- */
-interface Env {
-  DB: D1Database;
-  // MEDIA: R2Bucket;  // se habilita tras activar R2 en el dashboard
-  WA_NUMBER: string;
-  PUBLIC_URL: string;
-  SITE_NAME: string;
-  SESSION_SECRET: string;
-  CSRF_SECRET: string;
-  ADMIN_EMAIL: string;
-  ADMIN_PASSWORD_HASH: string;
-  NOTIFICATION_EMAIL_TOKEN: string;
-}
-
-/**
- * Punto de entrada del Worker de Cloudflare para React Router v7.
- * El Cloudflare Vite plugin inyecta el server-build generado en build/server.
+ * Punto de entrada del Worker de Cloudflare para React Router v8.
  *
- * El contexto (env con bindings) se expone como `context.cloudflare` a los
- * loaders/actions de React Router.
+ * Creamos un RouterContextProvider, le inyectamos el contexto de Cloudflare
+ * (env + ctx), y los loaders lo leen con context.get(cloudflareContext).
  */
-declare module "react-router" {
-  interface AppLoadContext {
-    cloudflare: {
-      env: Env;
-      ctx: ExecutionContext;
-    };
-  }
-}
+
+const requestHandler = createRequestHandler(
+  () => import("virtual:react-router/server-build"),
+  import.meta.env.MODE,
+);
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext) {
-    const handler = createRequestHandler(
-      () => import("virtual:react-router/server-build"),
-      import.meta.env.MODE,
-    );
-    return handler(request, {
-      cloudflare: { env, ctx },
-    });
+  async fetch(request: Request, env: CloudflareEnv, ctx: ExecutionContext) {
+    const provider = new RouterContextProvider();
+    provider.set(cloudflareContext, { env, ctx });
+    return requestHandler(request, provider);
   },
-} satisfies ExportedHandler<Env>;
+} satisfies ExportedHandler<CloudflareEnv>;

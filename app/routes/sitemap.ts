@@ -1,4 +1,5 @@
 import type { Route } from "./+types/sitemap";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 
 /**
  * Resource route: /sitemap.xml
@@ -6,7 +7,7 @@ import type { Route } from "./+types/sitemap";
  * en fases siguientes se enriquece con productos/categorías desde D1.
  */
 export function loader({ context }: Route.LoaderArgs) {
-  const base = (context.cloudflare.env.PUBLIC_URL ?? "https://eventoarte.co").replace(/\/$/, "");
+  const base = (context.get(cloudflareContext).env.PUBLIC_URL ?? "https://eventoarte.co").replace(/\/$/, "");
   const today = new Date().toISOString().split("T")[0];
 
   const urls = [

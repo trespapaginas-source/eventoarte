@@ -1,4 +1,5 @@
 import type { Route } from "./+types/categoria";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
 import { getDb } from "~/lib/db/client";
@@ -10,7 +11,7 @@ export function meta({ params }: Route.MetaArgs) {
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.get(cloudflareContext).env;
   // En fase 0 usamos datos de muestra. La consulta por categoría real llega con D1.
   return { products: sampleProducts, waNumber: env.WA_NUMBER, publicUrl: env.PUBLIC_URL };
 }

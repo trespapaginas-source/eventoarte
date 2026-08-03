@@ -1,4 +1,5 @@
 import type { Route } from "./+types/home";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 import { Link } from "react-router";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
@@ -29,7 +30,7 @@ export function meta(_: Route.MetaArgs) {
 }
 
 export async function loader({ context }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const { env } = context.get(cloudflareContext);
   const waNumber = env.WA_NUMBER;
   const publicUrl = env.PUBLIC_URL;
 

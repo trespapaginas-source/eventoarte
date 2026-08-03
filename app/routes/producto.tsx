@@ -1,4 +1,5 @@
 import type { Route } from "./+types/producto";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 import { Link } from "react-router";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { getDb } from "~/lib/db/client";
@@ -7,18 +8,16 @@ import { buildWhatsAppProductLink } from "~/lib/whatsapp";
 import { formatCOP, priceTypeLabel } from "~/lib/format";
 import { sampleProducts } from "~/lib/sample-data";
 
-export function meta({ data }: Route.MetaArgs) {
-  const p = data?.product;
-  if (!p) return [{ title: "Producto — eventoarte.co" }];
+export function meta(_: Route.MetaArgs) {
   return [
-    { title: `${p.name} — eventoarte.co` },
-    { name: "description", content: p.shortDesc ?? `Cotiza ${p.name} (#${p.code}) para tu evento.` },
+    { title: "Producto — eventoarte.co" },
+    { name: "description", content: "Cotiza este producto personalizado para tu evento con eventoarte.co." },
     { property: "og:type", content: "product" },
   ];
 }
 
 export async function loader({ context, params }: Route.LoaderArgs) {
-  const env = context.cloudflare.env;
+  const env = context.get(cloudflareContext).env;
   let product: any = sampleProducts.find((p) => p.slug === params.slug) ?? null;
   let related: any[] = [];
 

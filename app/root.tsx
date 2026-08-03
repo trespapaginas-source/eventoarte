@@ -8,15 +8,19 @@ import {
   useRouteError,
 } from "react-router";
 import type { Route } from "./+types/root";
+import { cloudflareContext } from "~/lib/cloudflare-context";
 import "./styles/app.css";
 
 /**
- * Función que enlaza el contexto de Cloudflare (bindings: DB, MEDIA, vars)
- * con los loaders/actions de React Router.
+ * Root loader: expone datos globales (WhatsApp, URL pública) a toda la app.
+ * En v8 el contexto de Cloudflare se lee con context.get(cloudflareContext).
  */
 export function loader({ context }: Route.LoaderArgs) {
-  // Exponemos el env completo para que los loaders accedan a bindings.
-  return { cloudflare: (context as any).cloudflare?.env ?? context.cloudflare };
+  const { env } = context.get(cloudflareContext);
+  return {
+    waNumber: env.WA_NUMBER,
+    publicUrl: env.PUBLIC_URL,
+  };
 }
 
 export const links: Route.LinksFunction = () => [
