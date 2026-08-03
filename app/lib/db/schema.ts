@@ -159,7 +159,7 @@ export const settings = sqliteTable("settings", {
   value: text("value"), // JSON según el key
 });
 
-export const userRoles = ["admin", "editor"] as const;
+export const userRoles = ["admin", "recordarte", "bellaarte"] as const;
 export type UserRole = (typeof userRoles)[number];
 
 /* ---------- Usuarios del CMS ---------- */

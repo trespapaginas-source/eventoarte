@@ -2,7 +2,7 @@ import type { Route } from "./+types/login";
 import { Form, redirect } from "react-router";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 import {
-  checkCredentials,
+  authenticate,
   readSessionCookie,
   setSessionCookie,
   validateSession,
@@ -43,25 +43,17 @@ export async function action({ context, request }: Route.ActionArgs) {
     return { error: "Ingresa tu correo y contraseña." };
   }
 
-  // Anti-fuerza bruta básica: requiere que las vars estén configuradas
-  if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD_HASH) {
-    return { error: "El inicio de sesión no está configurado. Contacta al administrador." };
-  }
-
-  const ok = await checkCredentials(email, password, {
-    email: env.ADMIN_EMAIL,
-    passwordHash: env.ADMIN_PASSWORD_HASH,
-  });
-
-  if (!ok) {
-    return { error: "Correo o contraseña incorrectos." };
-  }
-
   if (!env.DB) {
     return { error: "Base de datos no disponible." };
   }
   const db = getDb(env.DB);
-  const { token, maxAge } = await startSession(db);
+  const user = await authenticate(db, email, password);
+
+  if (!user) {
+    return { error: "Correo o contraseña incorrectos." };
+  }
+
+  const { token, maxAge } = await startSession(db, user.id);
 
   return new Response(null, {
     status: 302,

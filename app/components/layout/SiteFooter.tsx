@@ -1,4 +1,4 @@
-import { MessageCircle, Camera } from "lucide-react";
+import { MessageCircle, Camera, Share2 } from "lucide-react";
 import { Logo } from "./Logo";
 import { BrandLink } from "~/lib/brand-links";
 import { buildWhatsAppSimpleLink } from "~/lib/whatsapp";
@@ -60,6 +60,14 @@ export function SiteFooter({ brand }: { brand?: BrandConfig }) {
           <h2 className="mb-4 text-xs font-bold uppercase tracking-widest text-brand-ink">
             Contacto
           </h2>
+          {/* Avatar de la marca (si tiene foto de perfil configurada) */}
+          {brand?.photo ? (
+            <img
+              src={`/media/${brand.photo}`}
+              alt={brand.name}
+              className="mb-4 h-16 w-16 rounded-full border border-border object-cover"
+            />
+          ) : null}
           {waLink ? (
             <a
               href={waLink}
@@ -83,6 +91,19 @@ export function SiteFooter({ brand }: { brand?: BrandConfig }) {
                 {brand ? `@${brand.name}` : "@recuerdos.store"}
               </a>
             </li>
+            {brand?.facebook ? (
+              <li>
+                <a
+                  href={brand.facebook}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 transition-colors hover:text-brand-ink"
+                >
+                  <Share2 size={14} strokeWidth={1.5} />
+                  Facebook
+                </a>
+              </li>
+            ) : null}
           </ul>
         </div>
       </div>

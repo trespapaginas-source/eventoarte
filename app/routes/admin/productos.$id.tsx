@@ -5,7 +5,7 @@ import { AdminShell } from "~/components/admin/AdminShell";
 import { ProductForm } from "~/components/admin/ProductForm";
 import { Button } from "~/components/ui/Toggle";
 import { cloudflareContext } from "~/lib/cloudflare-context";
-import { requireAdmin } from "~/lib/auth";
+import { requireUser } from "~/lib/auth";
 import { getDb } from "~/lib/db/client";
 import { categories, products } from "~/lib/db/schema";
 import { asc, eq } from "drizzle-orm";
@@ -27,7 +27,7 @@ export function meta() {
 }
 
 export async function loader({ context, request, params }: Route.LoaderArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   if (!env.DB) throw new Response("DB no disponible", { status: 503 });
   const db = getDb(env.DB);
@@ -55,7 +55,7 @@ export async function loader({ context, request, params }: Route.LoaderArgs) {
 }
 
 export async function action({ context, request, params }: Route.ActionArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   if (!env.DB) return { error: "DB no disponible" };
   const db = getDb(env.DB);

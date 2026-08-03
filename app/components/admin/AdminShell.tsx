@@ -5,6 +5,7 @@ import {
   Inbox,
   FolderTree,
   Settings,
+  Users,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -13,13 +14,13 @@ import { Logo } from "~/components/layout/Logo";
 
 /**
  * Layout del CMS — app-like:
- *  - Mobile: top bar + bottom navigation fija (5 ítems).
+ *  - Mobile: top bar + bottom navigation fija.
  *  - Desktop: sidebar lateral fija.
  *
- * Sin header/footer públicos. Paleta B&N coherente con el sitio.
+ * El item "Usuarios" solo aparece si userRole === "admin".
  */
 
-const NAV: { label: string; to: string; icon: LucideIcon }[] = [
+const BASE_NAV: { label: string; to: string; icon: LucideIcon }[] = [
   { label: "Inicio", to: "/admin", icon: LayoutDashboard },
   { label: "Productos", to: "/admin/productos", icon: Package },
   { label: "Cotizaciones", to: "/admin/cotizaciones", icon: Inbox },
@@ -27,13 +28,30 @@ const NAV: { label: string; to: string; icon: LucideIcon }[] = [
   { label: "Ajustes", to: "/admin/ajustes", icon: Settings },
 ];
 
+const ADMIN_NAV: { label: string; to: string; icon: LucideIcon } = {
+  label: "Usuarios",
+  to: "/admin/usuarios",
+  icon: Users,
+};
+
 function isActive(pathname: string, to: string): boolean {
   if (to === "/admin") return pathname === "/admin";
   return pathname.startsWith(to);
 }
 
-export function AdminShell({ children }: { children: ReactNode }) {
+export function AdminShell({
+  children,
+  userRole,
+}: {
+  children: ReactNode;
+  userRole?: string;
+}) {
   const { pathname } = useLocation();
+  // "Usuarios" solo para admin; se inserta antes de "Ajustes"
+  const NAV: { label: string; to: string; icon: LucideIcon }[] =
+    userRole === "admin"
+      ? [...BASE_NAV.slice(0, 4), ADMIN_NAV, BASE_NAV[4]!]
+      : BASE_NAV;
 
   return (
     <div className="min-h-screen bg-surface-off">

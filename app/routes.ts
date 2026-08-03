@@ -63,6 +63,7 @@ export default [
     route("categorias", "routes/admin/categorias.tsx"),
     route("cotizaciones", "routes/admin/cotizaciones.tsx"),
     route("ajustes", "routes/admin/ajustes.tsx"),
+    route("usuarios", "routes/admin/usuarios.tsx"),
   ]),
 
   // Servir imágenes de R2 públicamente

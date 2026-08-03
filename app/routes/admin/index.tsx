@@ -4,7 +4,7 @@ import { Package, Inbox, FolderTree, Plus, ArrowRight } from "lucide-react";
 import { AdminShell } from "~/components/admin/AdminShell";
 import { Button } from "~/components/ui/Toggle";
 import { cloudflareContext } from "~/lib/cloudflare-context";
-import { requireAdmin } from "~/lib/auth";
+import { requireUser } from "~/lib/auth";
 import { getDb } from "~/lib/db/client";
 import { countQuotesByStatus } from "~/lib/db/mutations";
 import { listProducts } from "~/lib/db/queries";
@@ -19,9 +19,9 @@ export function meta() {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  await requireAdmin({ context, request });
+  const user = await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
-  if (!env.DB) return { stats: null };
+  if (!env.DB) return { stats: null, userRole: user.role };
 
   const db = getDb(env.DB);
   const [allProducts, quotes] = await Promise.all([
@@ -38,6 +38,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
       featured,
       quotes,
     },
+    userRole: user.role,
   };
 }
 
@@ -48,9 +49,10 @@ export default function AdminIndex({ loaderData }: Route.ComponentProps) {
     featured: number;
     quotes: { nueva: number; atendida: number; cerrada: number; total: number };
   } | null;
+  const userRole = (loaderData as any).userRole as string | undefined;
 
   return (
-    <AdminShell>
+    <AdminShell userRole={userRole}>
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-brand-ink">Panel</h1>
         <p className="mt-1 text-sm text-brand-ink-soft">

@@ -4,7 +4,7 @@ import { MessageCircle, Trash2 } from "lucide-react";
 import { AdminShell } from "~/components/admin/AdminShell";
 import { Button } from "~/components/ui/Toggle";
 import { cloudflareContext } from "~/lib/cloudflare-context";
-import { requireAdmin } from "~/lib/auth";
+import { requireUser } from "~/lib/auth";
 import { getDb } from "~/lib/db/client";
 import {
   listQuotes,
@@ -27,7 +27,7 @@ const STATUS_TABS = [
 ] as const;
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   if (!env.DB) return { quotes: [], activeStatus: "" };
 
@@ -40,7 +40,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   if (!env.DB) return { ok: true };
   const db = getDb(env.DB);

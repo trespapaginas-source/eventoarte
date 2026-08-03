@@ -4,16 +4,20 @@ import {
   getSession,
   deleteSession,
   purgeExpiredSessions,
+  getUserByEmail,
+  getUserById,
 } from "./db/mutations";
+import type { User, UserRole } from "./db/schema";
 
 /**
  * ============================================================
- * Autenticación del CMS — Admin único vía variables de entorno.
+ * Autenticación del CMS — Multi-usuario contra tabla `users`.
  *
  * Modelo:
- *  - ADMIN_EMAIL y ADMIN_PASSWORD_HASH en vars/secrets de Cloudflare.
- *  - ADMIN_PASSWORD_HASH es un hash PBKDF2 serializado: pbkdf2$iter$saltBase64$hashBase64
- *  - Sesión persistida en tabla `sessions` (token aleatorio de 32 bytes).
+ *  - Usuarios en tabla `users` (email único, passwordHash PBKDF2, role).
+ *  - Roles: admin (acceso total + gestión usuarios), recordarte, bellaarte
+ *    (editores del catálogo compartido; solo editan su config de marca).
+ *  - Sesión persistida en tabla `sessions` (token aleatorio, userId real).
  *  - Cookie httpOnly + Secure + SameSite=Lax, expira en 30 días.
  *
  * PBKDF2 se implementa con Web Crypto API (disponible en Workers, sin libs).
@@ -95,27 +99,37 @@ function randomToken(): string {
   return toBase64(bytes).replace(/[^a-zA-Z0-9]/g, "").slice(0, 40);
 }
 
-export async function startSession(db: Database): Promise<{ token: string; maxAge: number }> {
+export async function startSession(db: Database, userId: number): Promise<{ token: string; maxAge: number }> {
   await purgeExpiredSessions(db);
   const token = randomToken();
   const expiresAt = Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS;
-  await createSession(db, token, expiresAt);
+  await createSession(db, token, userId, expiresAt);
   return { token, maxAge: SESSION_TTL_SECONDS };
 }
 
+/**
+ * Valida la sesión y devuelve el usuario completo (con rol), o null.
+ * Cada loader/action usa el usuario retornado para aplicar permisos.
+ */
 export async function validateSession(
   db: Database,
   token: string | null,
-): Promise<boolean> {
-  if (!token) return false;
+): Promise<User | null> {
+  if (!token) return null;
   await purgeExpiredSessions(db);
   const session = await getSession(db, token);
-  if (!session) return false;
+  if (!session) return null;
   if (session.expiresAt < Math.floor(Date.now() / 1000)) {
     await deleteSession(db, token);
-    return false;
+    return null;
   }
-  return true;
+  const user = await getUserById(db, session.userId);
+  if (!user || !user.active) {
+    // Usuario desactivado tras crear la sesión → la invalidamos
+    await deleteSession(db, token);
+    return null;
+  }
+  return user;
 }
 
 export async function endSession(db: Database, token: string | null) {
@@ -148,58 +162,91 @@ export function readSessionCookie(request: Request): string | null {
 
 export const SESSION_COOKIE_NAME = SESSION_COOKIE;
 
-/* ---------------- Credenciales admin ---------------- */
+/* ---------------- Autenticación contra tabla users ---------------- */
 
-export interface AdminCredentials {
-  email: string;
-  passwordHash: string;
-}
-
-/** Verifica email+password contra las vars de entorno. */
-export async function checkCredentials(
+/**
+ * Autentica email+password contra la tabla users.
+ * Devuelve el usuario si las credenciales son válidas y la cuenta está activa.
+ */
+export async function authenticate(
+  db: Database,
   email: string,
   password: string,
-  creds: AdminCredentials,
-): Promise<boolean> {
-  if (email.trim().toLowerCase() !== creds.email.trim().toLowerCase()) return false;
-  return verifyPassword(password, creds.passwordHash);
+): Promise<User | null> {
+  const user = await getUserByEmail(db, email.trim().toLowerCase());
+  if (!user || !user.active) return null;
+  const ok = await verifyPassword(password, user.passwordHash);
+  return ok ? user : null;
 }
 
-/* ---------------- Helper de protección de rutas ---------------- */
+/* ---------------- Helpers de protección de rutas ---------------- */
 
 import { cloudflareContext } from "./cloudflare-context";
 
 /**
- * Verifica que hay sesión válida; si no, lanza redirect a /admin/login.
+ * Verifica que hay sesión válida y devuelve el usuario autenticado.
+ * Si no, lanza redirect a /admin/login.
  * Usar al inicio de cada loader/action admin protegido.
  */
-export async function requireAdmin(args: {
+export async function requireUser(args: {
   context: any;
   request: Request;
-}): Promise<void> {
+}): Promise<User> {
   const { env } = args.context.get(cloudflareContext);
   const db = env.DB ? (await import("./db/client")).getDb(env.DB) : null;
   if (!db) throw new Response("Base de datos no disponible", { status: 503 });
 
   const token = readSessionCookie(args.request);
-  const ok = await validateSession(db, token);
-  if (!ok) {
+  const user = await validateSession(db, token);
+  if (!user) {
     throw new Response(null, {
       status: 302,
       headers: { Location: "/admin/login" },
     });
   }
+  return user;
+}
+
+/**
+ * Requiere que el usuario tenga un rol específico (ej: "admin" para gestión
+ * de usuarios). Si no lo tiene, lanza 403.
+ */
+export function requireRole(user: User, role: UserRole): void {
+  if (user.role !== role) {
+    throw new Response("No tienes permiso para acceder a esta sección", {
+      status: 403,
+    });
+  }
+}
+
+/**
+ * Devuelve el scope de marca del usuario:
+ *  - admin → null (sin restricción, puede ver/editar ambas marcas)
+ *  - recordarte/bellaarte → solo su marca
+ */
+export function userBrandScope(user: User): "recordarte" | "bellaarte" | null {
+  if (user.role === "admin") return null;
+  return user.role;
+}
+
+/**
+ * ¿Puede este usuario editar la config de una marca dada?
+ * Admin puede todo; las marcas solo la suya.
+ */
+export function canEditBrand(user: User, brandSlug: string): boolean {
+  if (user.role === "admin") return true;
+  return user.role === brandSlug;
 }
 
 /** Devuelve el db si hay sesión válida, o null. Para rutas que pueden mostrar UI sin sesión. */
-export async function getDbIfAdmin(args: {
+export async function getDbIfUser(args: {
   context: any;
   request: Request;
-}): Promise<Database | null> {
+}): Promise<{ db: Database; user: User } | null> {
   const { env } = args.context.get(cloudflareContext);
   if (!env.DB) return null;
   const db = (await import("./db/client")).getDb(env.DB);
   const token = readSessionCookie(args.request);
-  const ok = await validateSession(db, token);
-  return ok ? db : null;
+  const user = await validateSession(db, token);
+  return user ? { db, user } : null;
 }

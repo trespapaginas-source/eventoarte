@@ -24,26 +24,41 @@ export interface BrandConfig {
   whatsapp: string;
   /** URL completa del Instagram de la marca. */
   instagram: string;
+  /** URL completa del Facebook de la marca (opcional). */
+  facebook: string | null;
+  /** Clave R2 de la foto de perfil/avatar (opcional). */
+  photo: string | null;
 }
 
 /** Marca por defecto = la que se sirve en la raíz (sin directorio). */
 export const DEFAULT_BRAND: BrandSlug = "bellaarte";
 
-/** Catálogo de marcas. Único punto de verdad. */
-export const BRANDS: Record<BrandSlug, BrandConfig> = {
+/**
+ * Config por DEFECTO de cada marca. La config real se sobreescribe desde
+ * la tabla `settings` (editable en el CMS). Estos valores son el fallback
+ * cuando la BD no está disponible o no se han editado.
+ */
+export const BRAND_DEFAULTS: Record<BrandSlug, BrandConfig> = {
   recordarte: {
     slug: "recordarte",
     name: "Recordarte",
     whatsapp: "573122737264",
     instagram: "https://instagram.com/recordartebq/",
+    facebook: null,
+    photo: null,
   },
   bellaarte: {
     slug: "bellaarte",
     name: "Bella Arte",
     whatsapp: "573102737264",
     instagram: "https://instagram.com/bellaarte.co/",
+    facebook: null,
+    photo: null,
   },
 };
+
+/** Alias por compatibilidad con código existente. */
+export const BRANDS = BRAND_DEFAULTS;
 
 /** Slugs válidos para validación rápida. */
 const VALID_SLUGS = new Set<BrandSlug>(["bellaarte", "recordarte"]);
@@ -56,10 +71,35 @@ function isBrandSlug(value: unknown): value is BrandSlug {
  * Resuelve la marca a partir del segmento de URL.
  * - Si el slug es válido (recordarte|bellaarte) → esa marca.
  * - Si es undefined (raíz) o inválido → marca por defecto (Bella Arte).
+ *
+ * Devuelve la config por DEFECTO. Para la config real (editada desde el CMS),
+ * usar applyBrandOverrides() con los settings de la BD.
  */
 export function resolveBrand(slug?: string | null): BrandConfig {
   if (isBrandSlug(slug)) return BRANDS[slug];
   return BRANDS[DEFAULT_BRAND];
+}
+
+/**
+ * Aplica los overrides editados desde el CMS (tabla settings) sobre la
+ * config por defecto de una marca. Solo sobreescribe los campos que estén
+ * presentes y no vacíos en settings.
+ *
+ * `settings` es un record clave→valor como el que devuelve getAllSettings().
+ */
+export function applyBrandOverrides(
+  brand: BrandConfig,
+  settings: Record<string, string>,
+): BrandConfig {
+  const p = `brand.${brand.slug}.`;
+  const get = (k: string) => settings[p + k];
+  return {
+    ...brand,
+    whatsapp: get("whatsapp") || brand.whatsapp,
+    instagram: get("instagram") || brand.instagram,
+    facebook: get("facebook") || null,
+    photo: get("photo") || null,
+  };
 }
 
 /**

@@ -8,7 +8,7 @@
 
 import type { Database } from "./db/client";
 import { getAllSettings } from "./db/mutations";
-import { resolveBrand, type BrandConfig } from "./brand";
+import { resolveBrand, applyBrandOverrides, type BrandConfig, type BrandSlug } from "./brand";
 
 export interface PublicSiteData {
   brand: BrandConfig;
@@ -45,6 +45,17 @@ export async function loadPublicData(opts: {
   if (opts.db) {
     try {
       const settings = await getAllSettings(opts.db);
+      // Si el admin cambió la marca por defecto, y estamos en la raíz,
+      // servir esa marca en vez de la default hardcodeada.
+      let effectiveSlug: BrandSlug | undefined = undefined;
+      const dbDefault = settings["brand.default"];
+      if (dbDefault === "recordarte" || dbDefault === "bellaarte") {
+        effectiveSlug = dbDefault;
+      }
+      // Resuelve la marca base (default si no hay slug en URL)
+      const baseBrand = resolveBrand(opts.brandSlug ?? effectiveSlug);
+      // Aplica overrides editados (whatsapp, instagram, facebook, photo)
+      const finalBrand = applyBrandOverrides(baseBrand, settings);
       banner = {
         text: settings["banner.top.text"] ?? DEFAULT_BANNER.text,
         active: parseBool(settings["banner.top.active"], DEFAULT_BANNER.active),
@@ -53,6 +64,12 @@ export async function loadPublicData(opts: {
       promo = {
         text: settings["promo.text"] ?? "",
         active: parseBool(settings["promo.active"], false),
+      };
+      return {
+        brand: finalBrand,
+        publicUrl: opts.publicUrl.replace(/\/$/, ""),
+        banner,
+        promo,
       };
     } catch {
       // BD caída: usamos defaults

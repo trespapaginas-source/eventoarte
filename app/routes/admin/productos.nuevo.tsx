@@ -6,7 +6,7 @@ import { AdminShell } from "~/components/admin/AdminShell";
 import { ProductForm } from "~/components/admin/ProductForm";
 import { Button } from "~/components/ui/Toggle";
 import { cloudflareContext } from "~/lib/cloudflare-context";
-import { requireAdmin } from "~/lib/auth";
+import { requireUser } from "~/lib/auth";
 import { getDb } from "~/lib/db/client";
 import { categories } from "~/lib/db/schema";
 import { asc } from "drizzle-orm";
@@ -21,7 +21,7 @@ export function meta() {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   if (!env.DB) return { categories: [] };
   const db = getDb(env.DB);
@@ -32,7 +32,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   if (!env.DB) return { error: "DB no disponible" };
   const db = getDb(env.DB);

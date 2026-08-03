@@ -1,6 +1,6 @@
 import type { Route } from "./+types/upload";
 import { cloudflareContext } from "~/lib/cloudflare-context";
-import { requireAdmin } from "~/lib/auth";
+import { requireUser } from "~/lib/auth";
 
 /**
  * Resource route: POST /admin/upload
@@ -18,7 +18,7 @@ const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
 const VALID_PREFIXES = new Set(["productos", "categorias", "banners", "general"]);
 
 export async function action({ context, request }: Route.ActionArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
 
   if (!env.MEDIA) {

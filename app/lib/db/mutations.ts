@@ -8,6 +8,7 @@ import {
   quotes,
   settings,
   sessions,
+  users,
 } from "./schema";
 
 /**
@@ -397,11 +398,62 @@ export async function upsertManySettings(
   }
 }
 
+/* ---------------- USUARIOS ---------------- */
+
+export async function getUserByEmail(db: Database, email: string) {
+  return db.query.users.findFirst({ where: eq(users.email, email.toLowerCase()) });
+}
+
+export async function getUserById(db: Database, id: number) {
+  return db.query.users.findFirst({ where: eq(users.id, id) });
+}
+
+export async function listUsers(db: Database) {
+  return db.query.users.findMany({ orderBy: [asc(users.id)] });
+}
+
+export type UserInput = {
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: "admin" | "recordarte" | "bellaarte";
+  active: boolean;
+};
+
+export async function createUser(db: Database, input: UserInput) {
+  const [created] = await db
+    .insert(users)
+    .values({ ...input, email: input.email.toLowerCase() })
+    .returning();
+  return created;
+}
+
+export async function updateUserPassword(db: Database, id: number, passwordHash: string) {
+  const [updated] = await db
+    .update(users)
+    .set({ passwordHash })
+    .where(eq(users.id, id))
+    .returning();
+  return updated;
+}
+
+export async function setUserActive(db: Database, id: number, active: boolean) {
+  const [updated] = await db
+    .update(users)
+    .set({ active })
+    .where(eq(users.id, id))
+    .returning();
+  return updated;
+}
+
+export async function deleteUser(db: Database, id: number) {
+  await db.delete(users).where(eq(users.id, id));
+}
+
 /* ---------------- SESIONES ---------------- */
 
-export async function createSession(db: Database, token: string, expiresAt: number) {
-  // Admin único: userId fijo = 1 (registro simbólico en tabla users si hace falta)
-  await db.insert(sessions).values({ id: token, userId: 1, expiresAt }).run();
+export async function createSession(db: Database, token: string, userId: number, expiresAt: number) {
+  await db.insert(sessions).values({ id: token, userId, expiresAt }).run();
 }
 
 export async function getSession(db: Database, token: string) {

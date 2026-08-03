@@ -4,7 +4,7 @@ import { Plus, Search, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
 import { AdminShell } from "~/components/admin/AdminShell";
 import { Button } from "~/components/ui/Toggle";
 import { cloudflareContext } from "~/lib/cloudflare-context";
-import { requireAdmin } from "~/lib/auth";
+import { requireUser } from "~/lib/auth";
 import { getDb } from "~/lib/db/client";
 import { products, categories } from "~/lib/db/schema";
 import { eq, or, like, asc, and, desc } from "drizzle-orm";
@@ -19,7 +19,7 @@ export function meta() {
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   if (!env.DB) return { products: [], categories: [] };
 
@@ -47,7 +47,7 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 }
 
 export async function action({ context, request }: Route.ActionArgs) {
-  await requireAdmin({ context, request });
+  await requireUser({ context, request });
   const { env } = context.get(cloudflareContext);
   const form = await request.formData();
   const intent = String(form.get("intent") ?? "");
