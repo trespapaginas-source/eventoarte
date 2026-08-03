@@ -77,7 +77,11 @@ export function Logo({
         <span
           className={`font-display font-extrabold tracking-tight text-brand-ink ${textClassName}`}
         >
-          recuerdos<span className="text-brand-ink-light">.store</span>
+          recuerdos
+          {/* ".store" con el degradado de marca (acento sutil).
+              inline-block + background-clip para que el degradado
+              respete los límites del texto en todos los navegadores. */}
+          <span className="text-gradient-brand inline-block">.store</span>
         </span>
       ) : null}
     </span>

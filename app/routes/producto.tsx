@@ -173,8 +173,8 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
 
           {/* ===== Info minimalista ===== */}
           <div className="flex flex-col">
-            {/* Overline categoría */}
-            <p className="text-[10px] font-medium uppercase tracking-[2px] text-brand-ink-light">
+            {/* Overline categoría — acento de marca (degradado) */}
+            <p className="text-gradient-brand text-[10px] font-semibold uppercase tracking-[2px]">
               {p.categoryName}
             </p>
 

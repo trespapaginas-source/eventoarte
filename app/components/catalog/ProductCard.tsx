@@ -70,9 +70,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* Contenido — padding controlado */}
       <div className="flex flex-1 flex-col pt-3.5">
-        {/* Overline categoría */}
+        {/* Overline categoría — acento de marca (degradado) */}
         {product.categoryName ? (
-          <p className="mb-1 text-[10px] font-medium uppercase tracking-[2px] text-brand-ink-light">
+          <p className="text-gradient-brand mb-1 text-[10px] font-semibold uppercase tracking-[2px]">
             {product.categoryName}
           </p>
         ) : null}
