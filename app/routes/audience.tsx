@@ -2,10 +2,13 @@ import type { Route } from "./+types/audience";
 import { Link } from "react-router";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
+import { FilterBar } from "~/components/catalog/FilterBar";
 import {
-  sampleProducts,
   sampleCategories,
   getProductsByAudience,
+  applyFilters,
+  getPriceRange,
+  type SortOption,
 } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
@@ -22,22 +25,35 @@ export function meta(_: Route.MetaArgs) {
 export async function loader({ context, request }: Route.LoaderArgs) {
   const { env } = context.get(cloudflareContext);
   const pathname = new URL(request.url).pathname;
+  const url = new URL(request.url);
   const audience = pathname.includes("ninas") ? "ninas" : "ninos";
   const label = audience === "ninas" ? "Niñas" : "Niños";
-  const products = getProductsByAudience(audience);
+
+  const filters = {
+    minPrice: url.searchParams.get("min") ? Number(url.searchParams.get("min")) : undefined,
+    maxPrice: url.searchParams.get("max") ? Number(url.searchParams.get("max")) : undefined,
+    category: url.searchParams.get("categoria") ?? "",
+    sort: (url.searchParams.get("orden") as SortOption) ?? "relevancia",
+  };
+
+  const baseProducts = getProductsByAudience(audience);
+  const products = applyFilters(baseProducts, filters);
+  const priceRange = getPriceRange(baseProducts);
 
   return {
     products,
     categories: sampleCategories,
     audience,
     label,
+    priceRange,
+    activeCategory: filters.category,
     waNumber: env.WA_NUMBER,
     publicUrl: env.PUBLIC_URL,
   };
 }
 
 export default function Audience({ loaderData }: Route.ComponentProps) {
-  const { products, categories, label, waNumber, publicUrl } = loaderData;
+  const { products, categories, label, priceRange, activeCategory, waNumber, publicUrl } = loaderData;
   const emoji = label === "Niñas" ? "🎀" : "🚀";
 
   return (
@@ -53,20 +69,20 @@ export default function Audience({ loaderData }: Route.ComponentProps) {
           <span className="text-5xl">{emoji}</span>
           <h1 className="mt-3 text-3xl font-bold text-brand-ink md:text-4xl">{label}</h1>
           <p className="mt-2 text-brand-ink-soft">
-            {products.length} {products.length === 1 ? "producto personalizado" : "productos personalizados"} para {label.toLowerCase()}
+            Recordatorios personalizados para {label.toLowerCase()}
           </p>
         </div>
       </section>
 
       {/* Selector alternar Niños/Niñas */}
-      <section className="container-page py-6">
-        <div className="flex flex-wrap justify-center gap-2">
+      <section className="border-b border-border">
+        <div className="container-page flex flex-wrap justify-center gap-2 py-4">
           <Link
             to="/ninos"
             className={`border px-5 py-2 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
               label === "Niños"
                 ? "border-brand-ink bg-brand-ink text-white"
-                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink hover:text-brand-ink"
+                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
             }`}
           >
             🚀 Niños
@@ -76,7 +92,7 @@ export default function Audience({ loaderData }: Route.ComponentProps) {
             className={`border px-5 py-2 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
               label === "Niñas"
                 ? "border-brand-ink bg-brand-ink text-white"
-                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink hover:text-brand-ink"
+                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
             }`}
           >
             🎀 Niñas
@@ -90,8 +106,18 @@ export default function Audience({ loaderData }: Route.ComponentProps) {
         </div>
       </section>
 
+      {/* Filtros (precio + orden + categoría) */}
+      <FilterBar
+        priceMin={priceRange.min}
+        priceMax={priceRange.max}
+        showCategoryFilter
+        categories={categories}
+        activeCategory={activeCategory}
+        totalResults={products.length}
+      />
+
       {/* Productos */}
-      <section className="container-page pb-16">
+      <section className="container-page py-10">
         {products.length > 0 ? (
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4">
             {products.map((p: any) => (
@@ -101,9 +127,9 @@ export default function Audience({ loaderData }: Route.ComponentProps) {
         ) : (
           <div className="py-16 text-center">
             <p className="text-5xl">{emoji}</p>
-            <p className="mt-4 text-brand-ink-soft">Pronto tendremos más productos para {label.toLowerCase()}.</p>
-            <Link to="/catalogo" className="mt-4 inline-block text-brand-coral hover:underline">
-              Ver todo el catálogo
+            <p className="mt-4 text-brand-ink-soft">No hay productos con esos filtros.</p>
+            <Link to={label === "Niñas" ? "/ninas" : "/ninos"} className="mt-4 inline-block text-brand-coral hover:underline">
+              Limpiar filtros
             </Link>
           </div>
         )}

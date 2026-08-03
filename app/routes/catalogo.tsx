@@ -2,9 +2,16 @@ import type { Route } from "./+types/catalogo";
 import { Link } from "react-router";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
+import { FilterBar } from "~/components/catalog/FilterBar";
 import { getDb } from "~/lib/db/client";
 import { listProducts } from "~/lib/db/queries";
-import { sampleProducts, sampleCategories } from "~/lib/sample-data";
+import {
+  sampleProducts,
+  sampleCategories,
+  applyFilters,
+  getPriceRange,
+  type SortOption,
+} from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
 export function meta(_: Route.MetaArgs) {
@@ -13,43 +20,52 @@ export function meta(_: Route.MetaArgs) {
     {
       name: "description",
       content:
-        "Explora todos nuestros recordatorios y productos personalizados para eventos: morrales, loncheras, cartucheras, tulas y más.",
+        "Explora y filtra nuestros recordatorios personalizados: por precio, más vendidos, novedades, niños o niñas.",
     },
   ];
 }
 
 export async function loader({ context, request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const sort = (url.searchParams.get("sort") as any) ?? "featured";
-  const publico = url.searchParams.get("publico") ?? "";
   const { env } = context.get(cloudflareContext);
 
-  let products = sampleProducts;
-  if (publico === "ninos" || publico === "ninas") {
-    products = sampleProducts.filter(
-      (p) => p.audience === publico || p.audience === "unisex",
-    );
-  }
+  // Leer filtros de la URL
+  const filters = {
+    audience: url.searchParams.get("publico") ?? "",
+    category: url.searchParams.get("categoria") ?? "",
+    minPrice: url.searchParams.get("min") ? Number(url.searchParams.get("min")) : undefined,
+    maxPrice: url.searchParams.get("max") ? Number(url.searchParams.get("max")) : undefined,
+    sort: (url.searchParams.get("orden") as SortOption) ?? "relevancia",
+  };
+
+  let baseProducts = sampleProducts;
   try {
     if (env.DB) {
       const db = getDb(env.DB);
-      const result = await listProducts(db, { sort });
-      if (result.length) products = result as any;
+      const result = await listProducts(db, { sort: filters.sort as any });
+      if (result.length) baseProducts = result as any;
     }
   } catch {
     /* muestra */
   }
+
+  // Aplicar filtros
+  const products = applyFilters(baseProducts, filters);
+  const priceRange = getPriceRange();
+
   return {
     products,
     categories: sampleCategories,
-    publico,
+    priceRange,
+    activeCategory: filters.category,
     waNumber: env.WA_NUMBER,
     publicUrl: env.PUBLIC_URL,
   };
 }
 
 export default function Catalogo({ loaderData }: Route.ComponentProps) {
-  const { products, categories, publico, waNumber, publicUrl } = loaderData;
+  const { products, categories, priceRange, activeCategory, waNumber, publicUrl } = loaderData;
+
   return (
     <PublicLayout waNumber={waNumber}>
       {/* Encabezado */}
@@ -64,78 +80,40 @@ export default function Catalogo({ loaderData }: Route.ComponentProps) {
             Catálogo completo
           </h1>
           <p className="mt-2 text-brand-ink-soft">
-            {products.length} productos personalizados para tus celebraciones
+            Filtra por público, precio o categoría para encontrar el recuerdo perfecto
           </p>
         </div>
       </section>
 
-      {/* Filtros: Niños / Niñas / Todos */}
-      <section className="border-b border-border">
-        <div className="container-page flex flex-wrap items-center justify-center gap-2 py-4">
-          <span className="mr-2 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">
-            Público:
-          </span>
-          <Link
-            to="/catalogo"
-            className={`border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
-              !publico
-                ? "border-brand-ink bg-brand-ink text-white"
-                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
-            }`}
-          >
-            Todos
-          </Link>
-          <Link
-            to="/catalogo?publico=ninos"
-            className={`border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
-              publico === "ninos"
-                ? "border-brand-ink bg-brand-ink text-white"
-                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
-            }`}
-          >
-            🚀 Niños
-          </Link>
-          <Link
-            to="/catalogo?publico=ninas"
-            className={`border px-4 py-1.5 text-[11px] font-medium uppercase tracking-[1.5px] transition-colors ${
-              publico === "ninas"
-                ? "border-brand-ink bg-brand-ink text-white"
-                : "border-border bg-surface text-brand-ink-soft hover:border-brand-ink"
-            }`}
-          >
-            🎀 Niñas
-          </Link>
-        </div>
-      </section>
-
-      {/* Chips de categorías */}
-      <section className="container-page py-6">
-        <div className="flex flex-wrap justify-center gap-2">
-          <Link
-            to="/catalogo"
-            className="rounded-pill border border-border bg-surface px-4 py-2 text-sm font-medium text-brand-ink-soft transition-colors hover:border-brand-coral hover:text-brand-coral"
-          >
-            Todas
-          </Link>
-          {categories.map((cat: any) => (
-            <Link
-              key={cat.slug}
-              to={`/categoria/${cat.slug}`}
-              className="rounded-pill border border-border bg-surface px-4 py-2 text-sm font-medium text-brand-ink-soft transition-colors hover:border-brand-coral hover:text-brand-coral"
-            >
-              {cat.name}
-            </Link>
-          ))}
-        </div>
-      </section>
+      {/* Barra de filtros */}
+      <FilterBar
+        priceMin={priceRange.min}
+        priceMax={priceRange.max}
+        showCategoryFilter
+        categories={categories}
+        activeCategory={activeCategory}
+        totalResults={products.length}
+      />
 
       {/* Grid de productos */}
-      <section className="container-page pb-16">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4">
-          {products.map((p: any) => (
-            <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
-          ))}
-        </div>
+      <section className="container-page py-10">
+        {products.length > 0 ? (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 md:gap-x-6 lg:grid-cols-4">
+            {products.map((p: any) => (
+              <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
+            ))}
+          </div>
+        ) : (
+          <div className="py-16 text-center">
+            <p className="text-5xl">🔍</p>
+            <p className="mt-4 text-brand-ink-soft">
+              No encontramos productos con esos filtros.
+            </p>
+            <Link to="/catalogo" className="mt-4 inline-block text-brand-coral hover:underline">
+              Limpiar filtros y ver todo
+            </Link>
+          </div>
+        )}
       </section>
     </PublicLayout>
   );

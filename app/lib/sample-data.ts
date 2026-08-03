@@ -551,3 +551,87 @@ export function getProductsByCategoryAndAudience(
   return list;
 }
 
+/**
+ * ====== Sistema de filtrado y ordenamiento completo ======
+ */
+export interface ProductFilters {
+  audience?: string; // "ninos" | "ninas" | "" (todos)
+  category?: string; // slug de categoría
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: SortOption;
+}
+
+export type SortOption =
+  | "relevancia" // destacados primero
+  | "mas_vendidos" // isBestseller primero
+  | "precio_asc"
+  | "precio_desc"
+  | "nuevos"; // isNew primero
+
+export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: "relevancia", label: "Relevancia" },
+  { value: "mas_vendidos", label: "Más vendidos" },
+  { value: "nuevos", label: "Novedades" },
+  { value: "precio_asc", label: "Precio: menor a mayor" },
+  { value: "precio_desc", label: "Precio: mayor a menor" },
+];
+
+export function applyFilters(
+  products: SampleProduct[],
+  filters: ProductFilters,
+): SampleProduct[] {
+  let list = [...products];
+
+  // Filtro por público
+  if (filters.audience && filters.audience !== "") {
+    list = list.filter(
+      (p) => p.audience === filters.audience || p.audience === "unisex",
+    );
+  }
+
+  // Filtro por categoría
+  if (filters.category) {
+    list = list.filter((p) => p.categorySlug === filters.category);
+  }
+
+  // Filtro por precio
+  if (typeof filters.minPrice === "number") {
+    list = list.filter((p) => p.price >= filters.minPrice!);
+  }
+  if (typeof filters.maxPrice === "number") {
+    list = list.filter((p) => p.price <= filters.maxPrice!);
+  }
+
+  // Ordenamiento
+  switch (filters.sort) {
+    case "precio_asc":
+      list.sort((a, b) => a.price - b.price);
+      break;
+    case "precio_desc":
+      list.sort((a, b) => b.price - a.price);
+      break;
+    case "mas_vendidos":
+      list.sort((a, b) => Number(b.isBestseller) - Number(a.isBestseller));
+      break;
+    case "nuevos":
+      list.sort((a, b) => Number(b.isNew) - Number(a.isNew));
+      break;
+    case "relevancia":
+    default:
+      list.sort((a, b) => a.featuredOrder - b.featuredOrder);
+      break;
+  }
+
+  return list;
+}
+
+// Rango de precios para el slider
+export function getPriceRange(products: SampleProduct[] = sampleProducts) {
+  const prices = products.map((p) => p.price);
+  return {
+    min: Math.floor(Math.min(...prices) / 1000) * 1000,
+    max: Math.ceil(Math.max(...prices) / 1000) * 1000,
+  };
+}
+

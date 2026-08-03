@@ -118,22 +118,19 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
               </p>
             </div>
 
-            {/* CTAs */}
-            <div className="mt-5 flex flex-wrap gap-3">
+            {/* CTA único: Cotizar (estilo normal, no verde WhatsApp) */}
+            <div className="mt-6">
               <a
                 href={waLink}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-pill bg-whatsapp px-5 py-2.5 text-xs font-bold text-white shadow-md transition-transform hover:scale-105"
+                className="inline-flex w-full items-center justify-center border border-brand-ink bg-brand-ink px-6 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
-                💬 Cotizar por WhatsApp
+                Cotizar
               </a>
-              <Link
-                to="/cotizar"
-                className="inline-flex items-center justify-center rounded-pill border-2 border-brand-coral px-5 py-2.5 text-xs font-bold text-brand-coral transition-colors hover:bg-brand-coral hover:text-white"
-              >
-                📝 Formulario
-              </Link>
+              <p className="mt-2 text-center text-[11px] text-brand-ink-light">
+                Te responderemos por WhatsApp con la cotización a la medida
+              </p>
             </div>
 
             {/* Especificaciones */}
