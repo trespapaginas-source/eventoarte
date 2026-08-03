@@ -1,68 +1,159 @@
-import { Link } from "react-router";
+import { Link, Form } from "react-router";
+import { useState } from "react";
 
 /**
- * Header público de eventoarte.co.
+ * Header público de eventoarte.co — estilo premium inspirado en Vélez.
  * Sección 7.1 del Documento Técnico.
- * Sticky, con logo, navegación principal, buscador y CTA de WhatsApp.
+ *
+ * Estructura: barra superior fina + header principal con logo, navegación por
+ * categorías de producto, buscador y CTA de WhatsApp.
  */
+
+const NAV_CATEGORIES = [
+  { label: "Morrales", to: "/categoria/morrales" },
+  { label: "Loncheras", to: "/categoria/loncheras" },
+  { label: "Cartucheras", to: "/categoria/cartucheras" },
+  { label: "Tulas", to: "/categoria/tulas" },
+  { label: "Cangureras", to: "/categoria/cangureras" },
+  { label: "Recordatorios", to: "/categoria/recordatorios" },
+  { label: "Piñatería", to: "/categoria/pinateria" },
+];
+
 export function SiteHeader({ waNumber }: { waNumber?: string }) {
-  const navItems = [
-    { label: "Inicio", to: "/" },
-    { label: "Catálogo", to: "/catalogo" },
-    { label: "Baby shower", to: "/ocasion/baby-shower" },
-    { label: "Cumpleaños", to: "/ocasion/cumpleanos" },
-    { label: "Contacto", to: "/contacto" },
-  ];
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-surface/90 backdrop-blur">
-      <div className="container-page flex h-16 items-center gap-4">
-        <Link to="/" className="font-display text-2xl font-extrabold text-brand-coral">
-          eventoarte<span className="text-brand-mustard">.co</span>
-        </Link>
-
-        <nav className="ml-6 hidden items-center gap-6 md:flex" aria-label="Navegación principal">
-          {navItems.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="text-sm font-medium text-brand-ink-soft transition-colors hover:text-brand-coral"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <form action="/buscar" className="ml-auto hidden flex-1 max-w-xs sm:block">
-          <label className="relative block">
-            <span className="sr-only">Buscar productos</span>
-            <input
-              type="search"
-              name="q"
-              placeholder="Buscar por nombre o código…"
-              className="w-full rounded-full border border-border bg-brand-cream px-4 py-2 pr-10 text-sm focus:border-brand-coral focus:outline-none"
-            />
-            <button
-              type="submit"
-              aria-label="Buscar"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-ink-soft"
-            >
-              🔍
-            </button>
-          </label>
-        </form>
-
-        {waNumber ? (
-          <a
-            href={`https://wa.me/${waNumber}`}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-pill hidden bg-whatsapp px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-whatsapp-dark sm:inline-block"
-          >
-            💬 Cotizar
-          </a>
-        ) : null}
+    <header className="sticky top-0 z-50 border-b border-border bg-surface">
+      {/* Barra superior fina */}
+      <div className="bg-brand-ink py-1.5 text-center text-xs text-white/90">
+        <span className="font-medium">
+          🇨🇴 Fabricación nacional · Personalización para cada celebración
+        </span>
       </div>
+
+      {/* Header principal */}
+      <div className="container-page">
+        <div className="flex h-20 items-center gap-4">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="font-display text-2xl font-extrabold tracking-tight text-brand-ink transition-colors hover:text-brand-coral md:text-3xl"
+          >
+            eventoarte<span className="text-brand-coral">.co</span>
+          </Link>
+
+          {/* Navegación desktop */}
+          <nav
+            className="ml-8 hidden flex-1 items-center gap-5 lg:flex"
+            aria-label="Categorías de producto"
+          >
+            {NAV_CATEGORIES.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="text-sm font-medium text-brand-ink-soft transition-colors hover:text-brand-coral"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Buscador (desktop) */}
+          <Form action="/buscar" className="ml-auto hidden md:block">
+            <label className="relative block w-48 lg:w-56">
+              <span className="sr-only">Buscar productos</span>
+              <input
+                type="search"
+                name="q"
+                placeholder="Buscar…"
+                className="w-full rounded-full border border-border bg-brand-cream py-2 pl-4 pr-10 text-sm transition-colors focus:border-brand-coral focus:bg-white focus:outline-none"
+              />
+              <button
+                type="submit"
+                aria-label="Buscar"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-ink-soft transition-colors hover:text-brand-coral"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+              </button>
+            </label>
+          </Form>
+
+          {/* CTA WhatsApp (desktop) */}
+          {waNumber ? (
+            <a
+              href={`https://wa.me/${waNumber}`}
+              target="_blank"
+              rel="noreferrer"
+              className="hidden rounded-pill bg-whatsapp px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:scale-105 hover:bg-whatsapp-dark md:inline-flex md:items-center md:gap-2"
+            >
+              <span>💬</span>
+              <span>Cotizar</span>
+            </a>
+          ) : null}
+
+          {/* Botón menú móvil */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="ml-auto rounded-md p-2 text-brand-ink lg:hidden"
+            aria-label="Abrir menú"
+            aria-expanded={mobileOpen}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {mobileOpen ? (
+                <path d="M18 6 6 18M6 6l12 12" />
+              ) : (
+                <path d="M3 12h18M3 6h18M3 18h18" />
+              )}
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Menú móvil desplegable */}
+      {mobileOpen ? (
+        <div className="border-t border-border bg-surface lg:hidden">
+          <nav className="container-page flex flex-col gap-1 py-4" aria-label="Categorías (móvil)">
+            {NAV_CATEGORIES.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setMobileOpen(false)}
+                className="rounded-md px-3 py-2.5 text-sm font-medium text-brand-ink-soft transition-colors hover:bg-brand-cream hover:text-brand-coral"
+              >
+                {item.label}
+              </Link>
+            ))}
+
+            {/* Buscador móvil */}
+            <Form action="/buscar" className="mt-2">
+              <label className="relative block">
+                <span className="sr-only">Buscar productos</span>
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Buscar por nombre o código…"
+                  className="w-full rounded-full border border-border bg-brand-cream py-2.5 pl-4 pr-10 text-sm focus:border-brand-coral focus:outline-none"
+                />
+              </label>
+            </Form>
+
+            {waNumber ? (
+              <a
+                href={`https://wa.me/${waNumber}`}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-2 inline-flex items-center justify-center gap-2 rounded-pill bg-whatsapp px-5 py-2.5 text-sm font-semibold text-white"
+              >
+                💬 Cotizar por WhatsApp
+              </a>
+            ) : null}
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
 }

@@ -1,9 +1,11 @@
 import { Link } from "react-router";
-import type { Product } from "~/lib/db/schema";
 
 /**
- * Tarjeta de producto — Sección 7.3 del Documento Técnico.
- * Contiene: imagen, nombre, código, precio, cantidad mínima y botones Ver/Cotizar.
+ * Tarjeta de producto — estilo premium inspirado en Vélez.
+ * Sección 7.3 del Documento Técnico.
+ *
+ * Incluye: imagen con ratio fijo, badges (Nuevo / Más vendido), categoría,
+ * nombre, código, precio elegante y cantidad mínima.
  */
 
 function formatCOP(value: number): string {
@@ -17,68 +19,95 @@ function formatCOP(value: number): string {
 const priceTypeLabel: Record<string, string> = {
   unitario: "",
   desde: "Desde ",
-  por_cantidad: "Por cantidad: ",
+  por_cantidad: "",
 };
 
 export interface ProductCardProps {
-  product: Product & { images?: { r2Key: string; altText: string | null }[] };
+  product: any;
   waNumber?: string;
   publicUrl?: string;
 }
 
-export function ProductCard({ product, waNumber, publicUrl }: ProductCardProps) {
-  const firstImage = product.images?.[0];
+export function ProductCard({ product }: ProductCardProps) {
   const href = `/producto/${product.slug}`;
+  const image = product.image ?? product.gallery?.[0];
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-shadow hover:shadow-md">
-      <Link to={href} className="block aspect-4/3 overflow-hidden bg-brand-cream">
-        {firstImage ? (
+    <article className="group relative flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+      {/* Badges */}
+      <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
+        {product.isNew ? (
+          <span className="rounded-pill bg-brand-mustard px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
+            Nuevo
+          </span>
+        ) : null}
+        {product.isBestseller ? (
+          <span className="rounded-pill bg-brand-coral px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white shadow-sm">
+            Más vendido
+          </span>
+        ) : null}
+      </div>
+
+      {/* Imagen */}
+      <Link
+        to={href}
+        className="block aspect-4/3 overflow-hidden bg-brand-cream"
+        aria-label={`Ver ${product.name}`}
+      >
+        {image ? (
           <img
-            src={`/media/${firstImage.r2Key}`}
-            alt={firstImage.altText ?? product.name}
+            src={image}
+            alt={product.name}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-4xl">🎁</div>
+          <div className="flex h-full items-center justify-center text-5xl text-brand-ink-soft">
+            🎁
+          </div>
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <Link to={href} className="hover:text-brand-coral">
-          <h3 className="font-display text-lg leading-snug">{product.name}</h3>
+      {/* Contenido */}
+      <div className="flex flex-1 flex-col p-4">
+        {/* Categoría */}
+        {product.categoryName ? (
+          <p className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-brand-coral">
+            {product.categoryName}
+          </p>
+        ) : null}
+
+        {/* Nombre */}
+        <Link to={href} className="mb-1 hover:text-brand-coral">
+          <h3 className="font-display text-base leading-snug text-brand-ink transition-colors">
+            {product.name}
+          </h3>
         </Link>
-        <p className="font-mono text-xs text-brand-ink-soft">#{product.code}</p>
 
-        <p className="mt-auto text-lg font-semibold text-brand-ink">
-          {priceTypeLabel[product.priceType]}
-          {formatCOP(product.price)}
+        {/* Código */}
+        <p className="mb-3 font-mono text-xs text-brand-ink-soft">
+          Ref. {product.code}
         </p>
-        <p className="text-xs text-brand-ink-soft">Cantidad mín: {product.minQty} u</p>
 
-        <div className="mt-2 flex gap-2">
-          <Link
-            to={href}
-            className="flex-1 rounded-md border border-brand-coral px-3 py-2 text-center text-sm font-semibold text-brand-coral transition-colors hover:bg-brand-coral hover:text-white"
-          >
-            Ver producto
-          </Link>
-          {waNumber && publicUrl ? (
-            <a
-              href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
-                `¡Hola! Quiero cotizar ${product.name} (#${product.code}).`,
-              )}`}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-md bg-whatsapp px-3 py-2 text-sm font-semibold text-white transition-colors hover:bg-whatsapp-dark"
-              aria-label={`Cotizar ${product.name} por WhatsApp`}
-            >
-              💬
-            </a>
-          ) : null}
+        {/* Precio */}
+        <div className="mt-auto">
+          <p className="font-display text-xl font-bold text-brand-ink">
+            {priceTypeLabel[product.priceType]}
+            {formatCOP(product.price)}
+          </p>
+          <p className="mt-0.5 text-xs text-brand-ink-soft">
+            Cantidad mínima: {product.minQty} {product.minQty === 1 ? "unidad" : "unidades"}
+          </p>
         </div>
+
+        {/* CTA */}
+        <Link
+          to={href}
+          className="mt-3 block rounded-md border border-brand-ink px-4 py-2 text-center text-sm font-semibold text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+        >
+          Ver producto
+        </Link>
       </div>
     </article>
   );

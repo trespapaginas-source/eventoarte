@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#EDE8F5"/>
+      <stop offset="100%" stop-color="#D9D0E8"/>
+    </linearGradient>
+    <linearGradient id="tote" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8B7AB8"/>
+      <stop offset="100%" stop-color="#6B5A95"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg4)"/>
+  <ellipse cx="400" cy="710" rx="200" ry="22" fill="#000" opacity="0.08"/>
+  <!-- Asas -->
+  <path d="M 300 250 Q 300 180 370 180 Q 370 180 370 250" stroke="#4A3A6B" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M 430 250 Q 430 180 500 180 Q 500 180 500 250" stroke="#4A3A6B" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <!-- Cuerpo de la tula -->
+  <path d="M 280 250 L 520 250 L 540 690 Q 540 700 530 700 L 270 700 Q 260 700 260 690 Z" fill="url(#tote)"/>
+  <!-- Decoración bordada central: monograma -->
+  <text x="400" y="480" font-size="120" text-anchor="middle" fill="#FFF4E6" opacity="0.9" font-family="Georgia" font-style="italic">E</text>
+  <text x="400" y="540" font-size="28" text-anchor="middle" fill="#FFF4E6" opacity="0.7" font-family="Arial" letter-spacing="4">EVENTOARTE</text>
+  <!-- Línea decorativa inferior -->
+  <rect x="290" y="640" width="220" height="2" fill="#FFF4E6" opacity="0.4"/>
+  <!-- Detalle costura superior -->
+  <path d="M 290 270 L 510 270" stroke="#FFF4E6" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
+</svg>

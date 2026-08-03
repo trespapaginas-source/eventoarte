@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <linearGradient id="bg8" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE8F0"/>
+      <stop offset="100%" stop-color="#FFD1DD"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg8)"/>
+  <ellipse cx="400" cy="700" rx="200" ry="20" fill="#000" opacity="0.08"/>
+  <!-- Piñata estrella tradicional -->
+  <g transform="translate(400, 380)">
+    <!-- Picos de la estrella -->
+    <g fill="#E74C3C">
+      <polygon points="0,-220 30,-120 -30,-120"/>
+    </g>
+    <g fill="#3498DB">
+      <polygon points="220,0 120,-30 120,30"/>
+      <polygon points="-220,0 -120,-30 -120,30"/>
+    </g>
+    <g fill="#F1C40F">
+      <polygon points="0,220 30,120 -30,120"/>
+    </g>
+    <g fill="#9B59B6">
+      <polygon points="156,-156 90,-90 90,-110"/>
+      <polygon points="-156,-156 -90,-90 -90,-110"/>
+      <polygon points="156,156 90,90 90,110"/>
+      <polygon points="-156,156 -90,90 -90,110"/>
+    </g>
+    <!-- Centro -->
+    <circle cx="0" cy="0" r="110" fill="#2ECC71"/>
+    <circle cx="0" cy="0" r="100" fill="#FFF4E6" opacity="0.3"/>
+    <!-- Detalle centro -->
+    <text x="0" y="15" font-size="50" text-anchor="middle" fill="#FFF4E6">🎉</text>
+  </g>
+  <!-- Confeti decorativo -->
+  <g opacity="0.6">
+    <rect x="150" y="200" width="12" height="12" fill="#E74C3C" transform="rotate(45 156 206)"/>
+    <rect x="640" y="250" width="10" height="10" fill="#3498DB" transform="rotate(30 645 255)"/>
+    <rect x="180" y="580" width="14" height="14" fill="#F1C40F" transform="rotate(60 187 587)"/>
+    <rect x="620" y="600" width="11" height="11" fill="#9B59B6" transform="rotate(20 625 605)"/>
+  </g>
+</svg>

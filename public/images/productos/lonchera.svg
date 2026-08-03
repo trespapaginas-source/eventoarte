@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#E8F4FD"/>
+      <stop offset="100%" stop-color="#D1E7F5"/>
+    </linearGradient>
+    <linearGradient id="lunch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5BA4CF"/>
+      <stop offset="100%" stop-color="#3E7BA3"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg2)"/>
+  <ellipse cx="400" cy="700" rx="240" ry="22" fill="#000" opacity="0.08"/>
+  <!-- Asa -->
+  <path d="M 300 280 Q 300 220 400 220 Q 500 220 500 280" stroke="#2C5F7F" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <!-- Cuerpo lonchera -->
+  <rect x="240" y="280" width="320" height="380" rx="30" fill="url(#lunch)"/>
+  <!-- Tapa superior -->
+  <rect x="240" y="280" width="320" height="70" rx="30" fill="#4A8BB0"/>
+  <!-- Línea divisoria -->
+  <rect x="250" y="345" width="300" height="3" fill="#2C5F7F" opacity="0.4"/>
+  <!-- Decoración: estrella bordada central -->
+  <text x="400" y="500" font-size="90" text-anchor="middle" fill="#FFF4E6" opacity="0.85">★</text>
+  <!-- Nombre bordado (placeholder) -->
+  <rect x="330" y="560" width="140" height="40" rx="20" fill="#FFF4E6" opacity="0.9"/>
+  <text x="400" y="588" font-size="22" text-anchor="middle" fill="#3E7BA3" font-family="Arial" font-weight="bold">EVENTOARTE</text>
+  <!-- Cremallera -->
+  <rect x="260" y="375" width="280" height="5" rx="2" fill="#2C5F7F"/>
+</svg>

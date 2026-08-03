@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <defs>
+    <linearGradient id="bg1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFF4E6"/>
+      <stop offset="100%" stop-color="#F5E6D3"/>
+    </linearGradient>
+    <linearGradient id="bag1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#D4A574"/>
+      <stop offset="100%" stop-color="#B8895A"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg1)"/>
+  <!-- Sombra -->
+  <ellipse cx="400" cy="720" rx="220" ry="25" fill="#000" opacity="0.08"/>
+  <!-- Asa superior -->
+  <path d="M 320 220 Q 320 160 400 160 Q 480 160 480 220" stroke="#8B6F47" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <!-- Cuerpo del morral -->
+  <path d="M 270 220 L 530 220 Q 545 220 545 235 L 545 680 Q 545 705 520 705 L 280 705 Q 255 705 255 680 L 255 235 Q 255 220 270 220 Z" fill="url(#bag1)"/>
+  <!-- Bolsillo frontal -->
+  <path d="M 310 420 L 490 420 Q 500 420 500 430 L 500 640 Q 500 650 490 650 L 310 650 Q 300 650 300 640 L 300 430 Q 300 420 310 420 Z" fill="#A87B4F"/>
+  <!-- Detalles bordados (temática safari: hojas) -->
+  <g opacity="0.6">
+    <path d="M 350 290 Q 360 270 370 290 Q 380 310 370 330 Q 360 320 350 330 Q 340 310 350 290 Z" fill="#5B8C5A"/>
+    <path d="M 450 290 Q 460 270 470 290 Q 480 310 470 330 Q 460 320 450 330 Q 440 310 450 290 Z" fill="#5B8C5A"/>
+    <circle cx="400" cy="310" r="6" fill="#E8B339"/>
+  </g>
+  <!-- Cremallera del bolsillo -->
+  <rect x="300" y="415" width="200" height="6" rx="3" fill="#6B4F2E"/>
+  <circle cx="400" cy="418" r="8" fill="#E8B339"/>
+  <!-- Estrellas decorativas bordadas -->
+  <text x="345" y="540" font-size="32" fill="#FFF4E6" opacity="0.7">★</text>
+  <text x="430" y="540" font-size="28" fill="#FFF4E6" opacity="0.7">★</text>
+  <text x="385" y="580" font-size="24" fill="#FFF4E6" opacity="0.7">★</text>
+  <!-- Tirantes superiores -->
+  <rect x="285" y="200" width="50" height="35" rx="8" fill="#8B6F47"/>
+  <rect x="465" y="200" width="50" height="35" rx="8" fill="#8B6F47"/>
+</svg>
