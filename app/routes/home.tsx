@@ -114,9 +114,18 @@ export default function Home({ loaderData }: Route.ComponentProps) {
     <PublicLayout brand={brand} banner={banner}>
       {/* ===================== HERO ===================== */}
       <section className="relative overflow-hidden border-b border-border bg-surface">
-        <div className="container-page grid items-center gap-8 py-14 md:grid-cols-2 md:py-20">
+        {/* Fondo móvil: una sola foto a pantalla completa (oculta en desktop) */}
+        <div
+          className="absolute inset-0 bg-cover bg-center md:hidden"
+          style={{ backgroundImage: `url(${heroImages[0]})` }}
+          aria-hidden="true"
+        />
+        {/* Overlay para legibilidad del texto sobre el fondo en móvil */}
+        <div className="absolute inset-0 bg-surface/75 md:hidden" aria-hidden="true" />
+
+        <div className="container-page relative grid items-center gap-8 py-14 md:grid-cols-2 md:py-20">
           {/* Texto */}
-          <div>
+          <div className="relative z-10">
             <span className="inline-flex items-center gap-1.5 border border-border bg-surface-off px-4 py-1.5 text-[11px] font-bold uppercase tracking-[2px] text-brand-ink">
               <Sparkles size={12} strokeWidth={1.5} />
               Personalización para cada ocasión
@@ -165,34 +174,26 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           </div>
 
           {/* Collage visual — fotos editables desde el CMS */}
-          {/* Desktop: grilla de 4 fotos */}
+          {/* Desktop: grilla de 4 fotos (2 cols × 2 rows, la primera alta) */}
           <div className="relative hidden md:block">
-            <div className="grid grid-cols-2 gap-4">
-              {heroImages.slice(0, 4).map((src: string, i: number) => (
+            <div className="grid grid-cols-2 grid-rows-2 gap-4 h-full">
+              <img
+                src={heroImages[0]}
+                alt="Ejemplo 1"
+                className="row-span-2 h-full w-full rounded-xl object-cover shadow-md"
+                loading="eager"
+              />
+              {heroImages.slice(1, 4).map((src: string, i: number) => (
                 <img
                   key={i}
                   src={src}
-                  alt={`Ejemplo ${i + 1}`}
-                  className={`w-full rounded-xl object-cover shadow-md ${
-                    i === 0 ? "aspect-3/4 row-span-2" : "aspect-square"
-                  }`}
+                  alt={`Ejemplo ${i + 2}`}
+                  className="h-full w-full rounded-xl object-cover shadow-md"
                   loading="eager"
                 />
               ))}
             </div>
           </div>
-          {/* Móvil: una sola foto de fondo con cobertura completa */}
-          <div
-            className="absolute inset-0 -z-0 md:hidden"
-            style={{
-              backgroundImage: `url(${heroImages[0]})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-            aria-hidden="true"
-          />
-          {/* Overlay para legibilidad del texto sobre el fondo en móvil */}
-          <div className="absolute inset-0 bg-surface/70 md:hidden" aria-hidden="true" />
         </div>
       </section>
 

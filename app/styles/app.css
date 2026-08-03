@@ -269,7 +269,7 @@ h5 {
 .marquee-track {
   display: inline-flex;
   white-space: nowrap;
-  animation: marquee-banner 25s linear infinite;
+  animation: marquee-banner 50s linear infinite;
   will-change: transform;
 }
 
