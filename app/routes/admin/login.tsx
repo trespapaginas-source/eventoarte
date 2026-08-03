@@ -1,17 +1,119 @@
-/**
- * /admin/login — Pantalla de acceso al CMS (placeholder de la Fase 3).
- */
+import type { Route } from "./+types/login";
+import { Form, redirect } from "react-router";
+import { cloudflareContext } from "~/lib/cloudflare-context";
+import {
+  checkCredentials,
+  readSessionCookie,
+  setSessionCookie,
+  validateSession,
+  startSession,
+} from "~/lib/auth";
+import { getDb } from "~/lib/db/client";
+import { Field, TextInput } from "~/components/ui/Field";
+import { Button } from "~/components/ui/Toggle";
+
 export function meta() {
-  return [{ title: "Iniciar sesión — eventoarte.co" }, { name: "robots", content: "noindex, nofollow" }];
+  return [
+    { title: "Iniciar sesión — eventoarte.co" },
+    { name: "robots", content: "noindex, nofollow" },
+  ];
 }
 
-export default function AdminLogin() {
+/** Si ya hay sesión válida, redirige al dashboard. */
+export async function loader({ context, request }: Route.LoaderArgs) {
+  const { env } = context.get(cloudflareContext);
+  if (env.DB) {
+    const db = getDb(env.DB);
+    const token = readSessionCookie(request);
+    if (token && (await validateSession(db, token))) {
+      throw redirect("/admin");
+    }
+  }
+  return {};
+}
+
+export async function action({ context, request }: Route.ActionArgs) {
+  const { env } = context.get(cloudflareContext);
+  const form = await request.formData();
+  const email = String(form.get("email") ?? "");
+  const password = String(form.get("password") ?? "");
+
+  if (!email || !password) {
+    return { error: "Ingresa tu correo y contraseña." };
+  }
+
+  // Anti-fuerza bruta básica: requiere que las vars estén configuradas
+  if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD_HASH) {
+    return { error: "El inicio de sesión no está configurado. Contacta al administrador." };
+  }
+
+  const ok = await checkCredentials(email, password, {
+    email: env.ADMIN_EMAIL,
+    passwordHash: env.ADMIN_PASSWORD_HASH,
+  });
+
+  if (!ok) {
+    return { error: "Correo o contraseña incorrectos." };
+  }
+
+  if (!env.DB) {
+    return { error: "Base de datos no disponible." };
+  }
+  const db = getDb(env.DB);
+  const { token, maxAge } = await startSession(db);
+
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/admin",
+      "Set-Cookie": setSessionCookie(token, maxAge),
+    },
+  });
+}
+
+export default function AdminLogin({ actionData }: Route.ComponentProps) {
+  const error = (actionData as { error?: string } | null)?.error;
+
   return (
-    <main className="container-page py-16 text-center">
-      <h1 className="text-3xl">Iniciar sesión</h1>
-      <p className="mt-3 text-brand-ink-soft">
-        La autenticación del CMS se implementa en la Fase 3.
-      </p>
+    <main className="flex min-h-screen items-center justify-center bg-surface-off px-4">
+      <div className="w-full max-w-sm border border-border bg-surface p-8">
+        <a href="/" className="block text-center text-xl font-extrabold tracking-tight text-brand-ink">
+          eventoarte<span className="text-brand-ink-light">.co</span>
+        </a>
+        <h1 className="mt-6 text-center text-lg font-bold text-brand-ink">
+          Panel de administración
+        </h1>
+        <p className="mt-1 text-center text-sm text-brand-ink-soft">
+          Ingresa con tu cuenta para gestionar el catálogo
+        </p>
+
+        <Form method="post" className="mt-6 space-y-4">
+          {error ? (
+            <p className="border border-error bg-error/5 px-3 py-2 text-xs text-error">
+              {error}
+            </p>
+          ) : null}
+          <Field label="Correo" name="email" required>
+            <TextInput
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="admin@eventoarte.co"
+            />
+          </Field>
+          <Field label="Contraseña" name="password" required>
+            <TextInput name="password" type="password" required autoComplete="current-password" />
+          </Field>
+          <Button type="submit" className="w-full">
+            Iniciar sesión
+          </Button>
+        </Form>
+
+        <p className="mt-6 text-center text-[11px] text-brand-ink-light">
+          Zona privada · Solo administradores
+        </p>
+      </div>
     </main>
   );
 }

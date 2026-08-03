@@ -7,7 +7,7 @@ import { createContext } from "react-router";
 
 export interface CloudflareEnv {
   DB: D1Database;
-  // MEDIA: R2Bucket;  // se habilita tras activar R2 en el dashboard
+  MEDIA?: R2Bucket; // Opcional hasta activar R2 en el dashboard
   WA_NUMBER: string;
   PUBLIC_URL: string;
   SITE_NAME: string;

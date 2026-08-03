@@ -32,9 +32,20 @@ export default [
   route("sitemap.xml", "routes/sitemap.ts"),
   route("robots.txt", "routes/robots.ts"),
 
-  // CMS (fase 3)
+  // CMS — /admin (protegido)
   ...prefix("admin", [
     index("routes/admin/index.tsx"),
     route("login", "routes/admin/login.tsx"),
+    route("logout", "routes/admin/logout.tsx"),
+    route("upload", "routes/admin/upload.tsx"),
+    route("productos", "routes/admin/productos.tsx"),
+    route("productos/nuevo", "routes/admin/productos.nuevo.tsx"),
+    route("productos/:id", "routes/admin/productos.$id.tsx"),
+    route("categorias", "routes/admin/categorias.tsx"),
+    route("cotizaciones", "routes/admin/cotizaciones.tsx"),
+    route("ajustes", "routes/admin/ajustes.tsx"),
   ]),
+
+  // Servir imágenes de R2 públicamente
+  route("media/*", "routes/media.ts"),
 ] satisfies RouteConfig;

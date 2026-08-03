@@ -22,8 +22,11 @@
     }
   ],
 
-  // R2 se activa desde el dashboard de Cloudflare (un clic) y luego se
-  // descomenta este bloque para habilitar la subida de imágenes en el CMS:
+  // R2 — almacenamiento de imágenes subidas desde el CMS.
+  // PASOS PARA ACTIVAR (necesario para subir fotos desde el panel):
+  //   1. Ve a https://dash.cloudflare.com → R2 Object Storage → activa el servicio
+  //   2. Crea un bucket llamado "eventoarte-media"
+  //   3. Descomenta el bloque de abajo
   // "r2_buckets": [
   //   { "binding": "MEDIA", "bucket_name": "eventoarte-media" }
   // ],

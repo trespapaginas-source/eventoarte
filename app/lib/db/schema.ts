@@ -5,7 +5,7 @@ import {
   real,
   primaryKey,
 } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 
 /**
  * ============================================================
@@ -182,6 +182,67 @@ export const sessions = sqliteTable("sessions", {
   expiresAt: integer("expires_at").notNull(),
   createdAt: integer("created_at").notNull().default(now),
 });
+
+/* ---------- Relaciones Drizzle (necesarias para db.query.*.with) ---------- */
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  products: many(products),
+}));
+
+export const occasionsRelations = relations(occasions, ({ many }) => ({
+  products: many(productOccasions),
+}));
+
+export const productsRelations = relations(products, ({ one, many }) => ({
+  category: one(categories, {
+    fields: [products.categoryId],
+    references: [categories.id],
+  }),
+  images: many(productImages),
+  occasions: many(productOccasions),
+}));
+
+export const productOccasionsRelations = relations(
+  productOccasions,
+  ({ one }) => ({
+    product: one(products, {
+      fields: [productOccasions.productId],
+      references: [products.id],
+    }),
+    occasion: one(occasions, {
+      fields: [productOccasions.occasionId],
+      references: [occasions.id],
+    }),
+  }),
+);
+
+export const productImagesRelations = relations(productImages, ({ one }) => ({
+  product: one(products, {
+    fields: [productImages.productId],
+    references: [products.id],
+  }),
+}));
+
+export const bannersRelations = relations(banners, () => ({}));
+
+export const quotesRelations = relations(quotes, ({ one }) => ({
+  product: one(products, {
+    fields: [quotes.productId],
+    references: [products.id],
+  }),
+}));
+
+export const settingsRelations = relations(settings, () => ({}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(sessions),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}));
 
 /* ---------- Tipos derivados ---------- */
 export type Category = typeof categories.$inferSelect;

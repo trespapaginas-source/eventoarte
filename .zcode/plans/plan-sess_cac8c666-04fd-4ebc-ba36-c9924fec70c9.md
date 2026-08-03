@@ -1,87 +1,151 @@
-# PLAN DE IMPLEMENTACIÓN — eventoarte.co
+# Plan: CMS de eventoarte.co
 
-## 0. Resumen del cambio de alcance
-Transformamos el proyecto de **LUGIM (mayorista B2B corporativo)** a **eventoarte.co (recordatorios y productos personalizados para eventos familiares)**: cumpleaños infantiles, quinceaños, baby shower, bautizos, primeras comuniones, etc. Se mantiene el modelo de **catálogo sin carrito ni pagos**, enfocado 100% en generar **cotizaciones por WhatsApp + formulario**.
-
-El entregable de esta fase NO es código: es un **documento técnico integral** (Markdown) que apruebas antes de programar.
-
----
-
-## 1. Decisiones clave que asumí (valida al aprobar)
-
-**Modelo de negocio**
-- Catálogo sin carrito/checkout/cuentas de usuario (igual que antes).
-- Conversión = solicitudes de cotización. CTA principal: "Cotizar por WhatsApp".
-- Cantidades mínimas y precios por volumen siguen teniendo sentido (eventos = pedidos por cantidad).
-
-**Identidad visual (dirección nueva para eventos)**
-- Tono **festivo, cálido y alegre**, pero **profesional y confiable** (sigue siendo fabricación/personalización nacional).
-- Dirección de paleta: **colores cálidos y vibrantes armónicos** (ej. coral/terracota + amarillo mostaza + verde sage como acento), no la sobriedad marrón/cuero de LUGIM. Fondo claro y limpio.
-- Tipografía: una **display redondeada y amigable** para títulos (ej. Poppins/Quicksand/Baloo 2) + **sans neutra** para texto (ej. Inter).
-- Logo: propongo concepto placeholder (marca + elemento festivo).
-
-**Stack (decidido por optimalidad en Cloudflare)**
-- **React Router v7 (Remix)** → framework full-stack. Es **Generally Available** y de **primera clase** en Cloudflare (el `@cloudflare/vite-plugin` lo soporta nativamente). SSR maduro, `loader`/`action` por ruta, el mejor ecosistema para SEO y CMS. *(TanStack Start es más nuevo pero menos maduro; Next.js en CF sigue en beta vía OpenNext.)*
-- **Cloudflare Workers** (compute edge) + **D1** (SQLite relacional, ideal catálogo) + **R2** (imágenes originales) + **Cloudflare Images** (transformación/optimización automática, 5k gratis/mes).
-- **Vite** + `@cloudflare/vite-plugin`, **Tailwind CSS** + **shadcn/ui** (componentes accesibles), **Drizzle ORM** (type-safe sobre D1), **Zod** (validación), **dnd-kit** (arrastrar-soltar: imágenes, destacados, categorías), **Lucide** (iconos).
-
-**Dominio**: usaré `eventoarte.co` como dominio en todos los ejemplos de SEO/sitemap/canonical.
-
-**Formato del entregable**: un único `DOCUMENTO_TECNICO.md` con tabla de contenidos navegable (fácil de leer y versionar en GitHub).
+## Decisiones confirmadas
+- **Auth**: Admin único vía variables de entorno (`ADMIN_EMAIL` + `ADMIN_PASSWORD_HASH`). Sesión cookie httpOnly sobre la tabla `sessions` existente. Sin tabla users, sin roles.
+- **Imágenes**: Subida a R2 desde el panel (bucket `eventoarte-media`). **Requiere activación manual del bucket en el dashboard de Cloudflare** (te daré instrucciones).
+- **Módulos v1**: Productos (CRUD completo), Bandeja de cotizaciones, Categorías (CRUD), Ajustes del sitio.
+- **Diseño**: Mobile-first app-like con bottom navigation en móvil / sidebar en desktop (como define el doc técnico §5.4, §7.6). Coherente con la paleta B&N + Inter + Lucide del sitio público.
 
 ---
 
-## 2. Análisis de Vélez (conclusión de la investigación ya realizada)
+## Fase 0 — Fundaciones (bloques compartidos)
 
-**Qué hace bien (a inspirar):** H1/H2 con narrativa de marca, grid visual de categorías con etiquetas en mayúsculas, tarjetas de producto con precio tachado + badges ("ÍCONO"), mega-menú por género/categoría, breadcrumb, ficha con galería de varias imágenes + descripción detallada + medidas, CTA "Comprar por WhatsApp" integrado, rich metadata VTEX (`og:type=product`), PWA, multi-país, footer completo con redes/legales/newsletter.
+### 0.1 Arreglar schema Drizzle (CRÍTICO)
+- Añadir `relations()` faltantes en `app/lib/db/schema.ts` (products↔images, products↔category, products↔occasions). Sin esto, las queries con `with:` fallan en runtime.
+- Arreglar bug `getRelatedProducts` (no excluye el producto actual) y `listProducts` (no aplica minPrice/maxPrice) en `queries.ts`.
 
-**Qué hacer mejor para eventoarte.co (propuesta):**
-- **Home sin fricción**: productos visibles casi de inmediato (no portadas largas narrativas).
-- **Categorías orientadas a *ocasión*** (cumpleaños, baby shower, quinceaños), no solo a tipo de producto.
-- **Catálogo sin peso de e-commerce tradicional** (sin VTEX ni procesos pesados): ligero y rapidísimo.
-- **CMS mobile-first tipo app nativa** (la administradora principal es una persona mayor que trabaja desde el celular).
-- **Conversión simplificada**: un solo CTA claro (Cotizar por WhatsApp) en vez del embudo Comprar/Carrito/Checkout.
+### 0.2 Capa de escritura — `app/lib/db/mutations.ts` (NUEVO)
+Funciones CRUD tipadas para todas las entidades: `createProduct`, `updateProduct`, `toggleProductActive`, `toggleProductFeatured`, `deleteProduct`, `upsertProductImage`, `reorderImages`, `deleteImage`, `createCategory`, `updateCategory`, `deleteCategory`, `reorderCategories`, `insertQuote`, `listQuotes`, `updateQuoteStatus`, `deleteQuote`, `getSetting`, `getAllSettings`, `upsertSetting`.
 
----
+### 0.3 Validación — `app/lib/validation.ts` (NUEVO)
+Esquemas Zod por entidad: `productSchema`, `categorySchema`, `settingsSchema`, `quoteInsertSchema`. Usados en actions para validar entrada.
 
-## 3. Estructura del DOCUMENTO_TECNICO.md que voy a redactar
+### 0.4 Auth — `app/lib/auth.ts` (NUEVO)
+- `hashPassword`/`verifyPassword` con Web Crypto API (PBKDF2, disponible en Workers sin librerías).
+- `createSession`/`getSession`/`destroySession` sobre tabla `sessions`.
+- Cookie httpOnly + Secure + SameSite=Lax, expira en 30 días.
+- Helper `requireAdmin(context, request)` que lanza 401/redirect a `/admin/login` si no hay sesión válida.
 
-1. **Resumen ejecutivo y objetivo del proyecto** (eventoarte.co).
-2. **Análisis de Vélez**: puntos positivos, negativos y lecciones.
-3. **Propuesta de mejora** y diferenciación.
-4. **Arquitectura de información** + **Mapa del sitio** (Home → Categorías → Producto → Buscar → Cotizar → Sobre nosotros/Contacto → /admin CMS).
-5. **Flujo de navegación** y wireframes conceptuales (ASCII) de Home, listado categoría, ficha producto, cotización y CMS.
-6. **Design System**: paleta (con hex), tipografías, escala, espaciados, radios, sombras, estados, accesibilidad.
-7. **Componentes reutilizables** (Header, Banner, CategoryGrid, ProductCard, ProductGallery, PriceTag, WhatsAppButton, QuoteForm, Footer, CMS-ProductEditor, DragList, ImageUploader, etc.).
-8. **Arquitectura Frontend** (rutas, data loading, render SSR + prerender, lazy loading).
-9. **Arquitectura Backend** (API interna en el mismo Worker, loaders/actions, validación).
-10. **Arquitectura del CMS** (pantallas, flujo mobile-first app-like, auth por sesión, roles).
-11. **Modelo de base de datos** (esquema D1/Drizzle: products, categories, images, banners, settings, quotes, users, sessions).
-12. **Estrategia SEO** (URLs amigables, meta, Open Graph, Schema.org `Product`/`Organization`/`BreadcrumbList`, sitemap dinámico, robots, canonical, hreflang opcional).
-13. **Estrategia de rendimiento** (objetivo PageSpeed >95, R2+Images, lazy load, caché, prerender, métricas Core Web Vitals).
-14. **Estrategia de seguridad** (OWASP: auth sesión cookie httpOnly, CSRF tokens, XSS escaping, SQLi mitigado con Drizzle parametrizado, rate-limit, RBAC).
-15. **Escalabilidad** (cómo añadir futuro carrito/pagos/clientes/pedidos/inventario/facturación sin rehacer).
-16. **Plan de desarrollo por fases** (F0 setup → F1 catálogo público → F2 producto + cotización → F3 CMS → F4 SEO/perf/seg → F5 pulido/lanzamiento).
-17. **Cronograma estimado** (por fase, en semanas).
-18. **Riesgos técnicos** y mitigaciones.
-19. **Recomendaciones futuras**.
-20. **Justificación de cada decisión técnica y de diseño.**
-
-Categorías iniciales que propondré para el catálogo: **Morrales y Kits para niños · Loncheras · Tulas · Cangureras · Piñatería · Recordatorios (cajas/bolsitas/etiquetas) · Cumpleaños · Baby Shower · Quinceaños · Bautizos y Primeras Comuniones**.
+### 0.5 Componentes UI base — `app/components/ui/` (NUEVOS)
+Unificando los FormField duplicados de contacto/cotizar en componentes reutilizables: `FormField`, `TextInput`, `TextArea`, `Select`, `Toggle`, `Button`, `AdminShell` (layout con bottom-nav/sidebar). Reutilizan Icon.tsx y los design tokens existentes.
 
 ---
 
-## 4. Qué entrego en esta fase (sin tocar código)
-- `DOCUMENTO_TECNICO.md` completo en el directorio de trabajo (todos los puntos de la sección 3).
-- Una **tabla de decisiones** final para tu validación antes de pasar a programar.
+## Fase 1 — Auth y shell del CMS
 
-## 5. Qué viene después (fase de código, previa aprobación)
-- Inicializar proyecto React Router v7 + Cloudflare.
-- Esquema D1 + Drizzle.
-- Catálogo público + CMS mobile-first.
-- Deploy a Cloudflare vía GitHub.
+### 1.1 Rutas admin (en `routes.ts`)
+```
+/admin/login              → login.tsx (público)
+/admin                    → dashboard (protegido)
+/admin/productos          → lista de productos (protegido)
+/admin/productos/nuevo    → editor crear (protegido)
+/admin/productos/:id      → editor editar (protegido)
+/admin/categorias         → gestor categorías (protegido)
+/admin/cotizaciones       → bandeja (protegido)
+/admin/ajustes            → ajustes del sitio (protegido)
+```
+
+### 1.2 Login (`admin/login.tsx`)
+Form email+password → action verifica contra `ADMIN_EMAIL`/`ADMIN_PASSWORD_HASH` del env → crea sesión → redirect a `/admin`. Diseño minimalista B&N.
+
+### 1.3 AdminShell (`AdminShell.tsx`)
+Layout app-like:
+- **Mobile**: top bar con título + logout, **bottom navigation** fija con 5 ítems (Inicio, Productos, Cotizaciones, Categorías, Ajustes) usando iconos Lucide.
+- **Desktop**: sidebar lateral fija con los mismos ítems.
+- Protege rutas: cada loader admin verifica sesión vía `requireAdmin()`.
+
+### 1.4 Dashboard (`admin/index.tsx`)
+Tarjetas resumen: total productos, productos activos, cotizaciones nuevas, cotizaciones pendientes. Accesos rápidos.
 
 ---
 
-### ¿Necesito de ti?
-Solo **aprueba este plan** (o dime qué ajustar: identidad visual, categorías, modelo de venta, dominio o formato del documento). En cuanto confirmes, redacto el `DOCUMENTO_TECNICO.md` completo.
+## Fase 2 — Módulo Productos (CRUD)
+
+### 2.1 Lista de productos (`admin/productos.tsx`)
+- Buscador por nombre/código.
+- Filtro por categoría y por estado (activo/inactivo).
+- Tabla (desktop) / tarjetas (mobile) con: miniatura, nombre, código, categoría, precio, estado, destacado.
+- Acciones rápidas: activar/desactivar (toggle), destacar, editar, eliminar (con confirmación).
+- Botón "Nuevo producto".
+
+### 2.2 Editor de producto (`admin/productos.$id.tsx` y `admin/productos.nuevo.tsx`)
+Form completo mobile-first (wireframe §5.4):
+- **Galería de fotos**: subir a R2 (drag para reordenar, eliminar, alt text). Vista de miniaturas.
+- **Datos básicos**: nombre, slug (auto-generado), código, categoría (select), descripción corta/larga.
+- **Precio**: precio, tipo (unitario/desde/por_cantidad), cantidad mínima.
+- **Especificaciones**: material, colores (lista editable), medidas, peso, tiempo fabricación, personalización.
+- **Visibilidad**: activo (toggle), destacado (toggle).
+- **SEO**: título SEO, descripción SEO (opcional).
+- Botones: Guardar, Duplicar, Eliminar.
+
+### 2.3 Subida a R2 — `app/routes/admin.upload.tsx` (resource route)
+Endpoint interno POST que recibe la imagen, la guarda en R2 (`MEDIA.put()`), devuelve la URL pública. El editor la asocia al producto.
+
+---
+
+## Fase 3 — Módulo Cotizaciones
+
+### 3.1 Action de `/cotizar` (FALTANTE — el form público ya existe)
+Añadir `action` a `cotizar.tsx` que inserta en tabla `quotes` vía `insertQuote()`. Redirige a página de gracias.
+
+### 3.2 Bandeja (`admin/cotizaciones.tsx`)
+- Lista de solicitudes con: nombre, teléfono (link WhatsApp), producto, fecha, estado.
+- Filtros por estado (nueva/atendida/cerrada).
+- Acciones: marcar como atendida, cerrada; responder por WhatsApp (link directo).
+- Vaciar/eliminar cotizaciones antiguas.
+
+---
+
+## Fase 4 — Módulo Categorías
+
+### 4.1 Gestor (`admin/categorias.tsx`)
+- Lista de categorías con imagen, nombre, slug, # productos, estado.
+- Crear/editar: nombre, slug (auto), descripción, imagen (subida R2), estado.
+- Reordenar (subir/bajar con flechas — sin dnd-kit para evitar complejidad).
+- Eliminar (con advertencia si tiene productos asociados).
+
+---
+
+## Fase 5 — Módulo Ajustes
+
+### 5.1 Panel (`admin/ajustes.tsx`)
+Edita la tabla `settings` (clave-valor):
+- WhatsApp, Instagram, URL pública.
+- SEO: título por defecto, descripción por defecto.
+- Texto del footer.
+- Guarda vía `upsertSetting()`.
+
+---
+
+## Fase 6 — Activar R2 + seguridad
+
+- **R2**: Descomentar bloque `r2_buckets` en `wrangler.jsonc`, añadir `MEDIA: R2Bucket` al `CloudflareEnv`. **Requiere que actives el bucket `eventoarte-media` en el dashboard de Cloudflare** (te daré los pasos).
+- **Secrets de producción**: `wrangler secret put SESSION_SECRET`, `ADMIN_PASSWORD_HASH` (generaré el hash PBKDF2).
+- **CSRF**: token en forms admin (usa `CSRF_SECRET`).
+- **Rate limiting** básico en `/admin/login` (anti-fuerza bruta).
+
+---
+
+## Archivos a crear (≈22 nuevos)
+- `app/lib/db/mutations.ts`, `app/lib/validation.ts`, `app/lib/auth.ts`
+- `app/components/ui/{FormField,TextInput,TextArea,Select,Toggle,Button}.tsx`
+- `app/components/admin/{AdminShell,Dashboard,ProductList,ProductEditor,ImageUploader,CategoryManager,QuotesInbox,SettingsPanel}.tsx`
+- `app/routes/admin/{login,index,productos,productos_.$id,categorias,cotizaciones,ajustes}.tsx`
+- `app/routes/admin.upload.tsx` (resource route R2)
+
+## Archivos a modificar (≈8)
+- `app/lib/db/schema.ts` (relations), `app/lib/db/queries.ts` (bugs + nuevas queries)
+- `app/routes.ts` (rutas admin), `wrangler.jsonc` (R2), `app/lib/cloudflare-context.ts` (MEDIA)
+- `app/routes/cotizar.tsx` (action), `app/routes/admin/{index,login}.tsx` (de placeholder a funcional)
+
+## Orden de ejecución
+Fase 0 (fundaciones) → Fase 1 (auth+shell) → Fase 2 (productos) → Fase 3 (cotizaciones) → Fase 4 (categorías) → Fase 5 (ajustes) → Fase 6 (R2+seguridad). Cada fase termina con build+deploy+verificación.
+
+---
+
+## Notas
+- **Sin `dnd-kit`**: el reordenamiento será con flechas subir/bajar (más simple, funciona perfecto en móvil).
+- **Sin tabla users**: auth directo contra vars de entorno. Si en el futuro quieres multi-usuario, la tabla existe y se activa.
+- **R2 es bloqueante para imágenes**: si no activas el bucket, el módulo de imágenes no funcionará pero todo lo demás sí (el CMS permitirá pegar URL como fallback temporal).
+
+¿Apruebo este plan para empezar la implementación?
