@@ -23,6 +23,7 @@ import { cloudflareContext } from "~/lib/cloudflare-context";
  * Destacados → Banner CTA → Catálogo → Footer.
  */
 export function meta(_: Route.MetaArgs) {
+  const publicUrl = "https://eventoarte.co";
   return [
     {
       title: "eventoarte.co — Recordatorios personalizados para tus celebraciones",
@@ -32,6 +33,20 @@ export function meta(_: Route.MetaArgs) {
       content:
         "Morrales, loncheras, cartucheras, tulas y recordatorios personalizados para cumpleaños, baby shower, quinceaños, bautizos y más. Fabricación nacional. Cotiza por WhatsApp.",
     },
+    { tagName: "link", rel: "canonical", href: `${publicUrl}/` },
+    { property: "og:type", content: "website" },
+    { property: "og:title", content: "eventoarte.co — Recordatorios personalizados" },
+    {
+      property: "og:description",
+      content:
+        "Morrales, loncheras, tulas y recordatorios personalizados para tus celebraciones. Cotiza por WhatsApp.",
+    },
+    { property: "og:url", content: `${publicUrl}/` },
+    {
+      property: "og:image",
+      content: `${publicUrl}/images/productos/fotos/morral-safari.jpg`,
+    },
+    { name: "twitter:card", content: "summary_large_image" },
   ];
 }
 
@@ -63,6 +78,10 @@ export async function loader({ context }: Route.LoaderArgs) {
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { featured, catalog, categories, waNumber, publicUrl } = loaderData;
+
+  // En el home mostramos "destacados" y luego "más productos" (sin duplicar).
+  const featuredIds = new Set(featured.map((p: any) => p.id ?? p.code));
+  const restOfCatalog = catalog.filter((p: any) => !featuredIds.has(p.id ?? p.code));
 
   return (
     <PublicLayout waNumber={waNumber}>
@@ -109,24 +128,24 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          {/* Collage visual */}
+          {/* Collage visual — fotos reales */}
           <div className="relative hidden md:block">
             <div className="grid grid-cols-2 gap-4">
               <img
-                src="/images/productos/morral-safari.svg"
+                src="/images/productos/fotos/morral-safari.jpg"
                 alt="Morral personalizado"
                 className="aspect-3/4 w-full rounded-xl object-cover shadow-md"
                 loading="eager"
               />
               <div className="grid gap-4">
                 <img
-                  src="/images/productos/lonchera.svg"
+                  src="/images/productos/fotos/lonchera.jpg"
                   alt="Lonchera personalizada"
                   className="aspect-square w-full rounded-xl object-cover shadow-md"
                   loading="eager"
                 />
                 <img
-                  src="/images/productos/recordatorio.svg"
+                  src="/images/productos/fotos/recordatorio.jpg"
                   alt="Recordatorio premium"
                   className="aspect-square w-full rounded-xl object-cover shadow-md"
                   loading="eager"
@@ -235,20 +254,20 @@ export default function Home({ loaderData }: Route.ComponentProps) {
         </div>
       </section>
 
-      {/* ===================== CATÁLOGO COMPLETO ===================== */}
-      {catalog.length > 0 ? (
+      {/* ===================== MÁS PRODUCTOS ===================== */}
+      {restOfCatalog.length > 0 ? (
         <section className="container-page pb-16">
           <div className="mb-8 text-center">
             <h2 className="font-display text-3xl font-bold text-brand-ink md:text-4xl">
-              Todo el catálogo
+              Más para celebrar
             </h2>
             <p className="mt-2 text-brand-ink-soft">
-              Explora nuestra colección completa de productos personalizados
+              Sigue explorando nuestra colección de productos personalizados
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
-            {catalog.map((p: any) => (
+            {restOfCatalog.map((p: any) => (
               <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
             ))}
           </div>

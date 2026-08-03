@@ -7,15 +7,37 @@ import { buildWhatsAppProductLink } from "~/lib/whatsapp";
 import { formatCOP, priceTypeLabel } from "~/lib/format";
 import { sampleProducts, type SampleProduct } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
+import { productJsonLd, breadcrumbJsonLd } from "~/lib/seo";
 
-export function meta(_: Route.MetaArgs) {
+const PUBLIC_URL = "https://eventoarte.co";
+
+// En React Router v8 el `data` del loader no siempre se tipa en meta args.
+// Para máxima robustez, resolvemos el producto desde params.slug directamente.
+export function meta({ params }: Route.MetaArgs) {
+  const product = sampleProducts.find((p) => p.slug === params.slug);
+  if (!product) {
+    return [
+      { title: "Producto no encontrado — eventoarte.co" },
+      { name: "description", content: "El producto que buscas no está disponible." },
+    ];
+  }
+  const url = `${PUBLIC_URL}/producto/${product.slug}`;
+  const image = product.image ?? product.gallery?.[0];
   return [
-    { title: "Producto — eventoarte.co" },
+    { title: `${product.name} — eventoarte.co` },
     {
       name: "description",
-      content: "Cotiza este producto personalizado para tu evento con eventoarte.co.",
+      content:
+        product.seoDesc ??
+        `${product.shortDesc} Cotiza ${product.name} personalizado para tu evento.`,
     },
+    { tagName: "link", rel: "canonical", href: url },
     { property: "og:type", content: "product" },
+    { property: "og:title", content: product.name },
+    { property: "og:description", content: product.shortDesc },
+    { property: "og:url", content: url },
+    { property: "og:image", content: `${PUBLIC_URL}${image}` },
+    { name: "twitter:card", content: "summary_large_image" },
   ];
 }
 
@@ -45,11 +67,40 @@ export async function loader({ context, params }: Route.LoaderArgs) {
     env.PUBLIC_URL,
   );
 
-  return { product, related, waLink, waNumber: env.WA_NUMBER, publicUrl: env.PUBLIC_URL };
+  // Datos para JSON-LD
+  const publicUrl = env.PUBLIC_URL.replace(/\/$/, "");
+  const url = `${publicUrl}/producto/${product.slug}`;
+  const image = product.image ?? product.gallery?.[0];
+
+  const jsonLdProduct = productJsonLd({
+    name: product.name,
+    sku: product.code,
+    description: product.shortDesc,
+    image: `${publicUrl}${image}`,
+    price: product.price,
+    url,
+  });
+
+  const jsonLdBreadcrumb = breadcrumbJsonLd([
+    { name: "Inicio", url: `${publicUrl}/` },
+    { name: "Catálogo", url: `${publicUrl}/catalogo` },
+    { name: product.categoryName, url: `${publicUrl}/categoria/${product.categorySlug}` },
+    { name: product.name, url },
+  ]);
+
+  return {
+    product,
+    related,
+    waLink,
+    waNumber: env.WA_NUMBER,
+    publicUrl,
+    jsonLdProduct,
+    jsonLdBreadcrumb,
+  };
 }
 
 export default function Producto({ loaderData }: Route.ComponentProps) {
-  const { product, related, waLink, waNumber } = loaderData;
+  const { product, related, waLink, waNumber, jsonLdProduct, jsonLdBreadcrumb } = loaderData;
   const p = product;
   const image = p.image ?? p.gallery?.[0];
 
@@ -79,6 +130,16 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
 
   return (
     <PublicLayout waNumber={waNumber}>
+      {/* Datos estructurados SEO (Schema.org) */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdProduct) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }}
+      />
+
       <div className="container-page pb-24 pt-6 md:pb-12 md:pt-8">
         {/* Breadcrumb */}
         <nav className="mb-6 text-[11px] text-brand-ink-light" aria-label="Migas de pan">

@@ -12,12 +12,25 @@ import {
 } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
-export function meta(_: Route.MetaArgs) {
+export function meta({ location }: Route.MetaArgs) {
+  // Resolvemos público desde la URL (rutas planas /ninos, /ninas — sin params).
+  const isNinas = location.pathname.includes("ninas");
+  const label = isNinas ? "Niñas" : "Niños";
+  const slug = isNinas ? "ninas" : "ninos";
+  const publicUrl = "https://eventoarte.co";
+  const title = `${label} — Recordatorios personalizados | eventoarte.co`;
   return [
-    { title: "Niños y Niñas — eventoarte.co" },
+    { title },
     {
       name: "description",
-      content: "Recordatorios y productos personalizados para niños y niñas: morrales, loncheras, cartucheras y más.",
+      content: `Recordatorios y productos personalizados para ${label.toLowerCase()}: morrales, loncheras, cartucheras, tulas y más.`,
+    },
+    { tagName: "link", rel: "canonical", href: `${publicUrl}/${slug}` },
+    { property: "og:type", content: "website" },
+    { property: "og:title", content: `${label} — eventoarte.co` },
+    {
+      property: "og:description",
+      content: `Recordatorios personalizados para ${label.toLowerCase()}.`,
     },
   ];
 }
@@ -54,7 +67,6 @@ export async function loader({ context, request }: Route.LoaderArgs) {
 
 export default function Audience({ loaderData }: Route.ComponentProps) {
   const { products, categories, label, priceRange, activeCategory, waNumber, publicUrl } = loaderData;
-  const emoji = label === "Niñas" ? "🎀" : "🚀";
 
   return (
     <PublicLayout waNumber={waNumber}>
@@ -66,8 +78,7 @@ export default function Audience({ loaderData }: Route.ComponentProps) {
             <span className="mx-2">/</span>
             <span className="text-brand-ink">{label}</span>
           </nav>
-          <span className="text-5xl">{emoji}</span>
-          <h1 className="mt-3 text-3xl font-bold text-brand-ink md:text-4xl">{label}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-brand-ink md:text-4xl">{label}</h1>
           <p className="mt-2 text-brand-ink-soft">
             Recordatorios personalizados para {label.toLowerCase()}
           </p>
@@ -97,6 +108,7 @@ export default function Audience({ loaderData }: Route.ComponentProps) {
           >
             🎀 Niñas
           </Link>
+          {/* (los emojis son sutiles, mantienen el tono festivo-controlado) */}
           <Link
             to="/catalogo"
             className="border border-border bg-surface px-5 py-2 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft transition-colors hover:border-brand-ink hover:text-brand-ink"
@@ -126,7 +138,6 @@ export default function Audience({ loaderData }: Route.ComponentProps) {
           </div>
         ) : (
           <div className="py-16 text-center">
-            <p className="text-5xl">{emoji}</p>
             <p className="mt-4 text-brand-ink-soft">No hay productos con esos filtros.</p>
             <Link to={label === "Niñas" ? "/ninas" : "/ninos"} className="mt-4 inline-block text-brand-coral hover:underline">
               Limpiar filtros

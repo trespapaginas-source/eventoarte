@@ -15,6 +15,7 @@ import {
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
 export function meta(_: Route.MetaArgs) {
+  const publicUrl = "https://eventoarte.co";
   return [
     { title: "Catálogo — eventoarte.co" },
     {
@@ -22,6 +23,15 @@ export function meta(_: Route.MetaArgs) {
       content:
         "Explora y filtra nuestros recordatorios personalizados: por precio, más vendidos, novedades, niños o niñas.",
     },
+    { tagName: "link", rel: "canonical", href: `${publicUrl}/catalogo` },
+    { property: "og:type", content: "website" },
+    { property: "og:title", content: "Catálogo — eventoarte.co" },
+    {
+      property: "og:description",
+      content:
+        "Explora y filtra nuestros recordatorios personalizados: por precio, más vendidos, novedades, niños o niñas.",
+    },
+    { property: "og:url", content: `${publicUrl}/catalogo` },
   ];
 }
 
@@ -105,7 +115,6 @@ export default function Catalogo({ loaderData }: Route.ComponentProps) {
           </div>
         ) : (
           <div className="py-16 text-center">
-            <p className="text-5xl">🔍</p>
             <p className="mt-4 text-brand-ink-soft">
               No encontramos productos con esos filtros.
             </p>
