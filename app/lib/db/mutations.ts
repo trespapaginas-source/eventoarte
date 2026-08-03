@@ -305,6 +305,22 @@ export async function moveCategory(db: Database, id: number, direction: "up" | "
     .where(eq(categories.id, swapWith.id));
 }
 
+/**
+ * Reordena categorías según un array de IDs en el orden deseado.
+ * Preserva todos los registros; solo actualiza sortOrder (0,1,2,...).
+ * Recibe el orden completo actual para evitar huecos.
+ */
+export async function reorderCategories(db: Database, orderedIds: number[]) {
+  for (let i = 0; i < orderedIds.length; i++) {
+    const id = orderedIds[i];
+    if (id == null) continue;
+    await db
+      .update(categories)
+      .set({ sortOrder: i, updatedAt: now })
+      .where(eq(categories.id, id));
+  }
+}
+
 /* ---------------- COTIZACIONES ---------------- */
 
 export type QuoteInput = {

@@ -1,10 +1,10 @@
 import type { Route } from "./+types/categorias";
 import { Form, redirect } from "react-router";
-import { ArrowUp, ArrowDown, Trash2, Plus, Pencil, X } from "lucide-react";
-import { useState } from "react";
+import { GripVertical, Trash2, Plus, Pencil, X } from "lucide-react";
+import { useState, useRef } from "react";
 import { AdminShell } from "~/components/admin/AdminShell";
 import { Button } from "~/components/ui/Toggle";
-import { Field, TextInput, TextArea } from "~/components/ui/Field";
+import { Field, TextInput } from "~/components/ui/Field";
 import { SingleImageUploader } from "~/components/admin/SingleImageUploader";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 import { requireUser } from "~/lib/auth";
@@ -15,7 +15,7 @@ import {
   createCategory,
   updateCategory,
   deleteCategory,
-  moveCategory,
+  reorderCategories,
   countProductsInCategory,
 } from "~/lib/db/mutations";
 import { categorySchema, slugify } from "~/lib/validation";
@@ -55,10 +55,10 @@ export async function action({ context, request }: Route.ActionArgs) {
   const form = await request.formData();
   const intent = String(form.get("intent") ?? "");
 
-  if (intent === "move") {
-    const id = Number(form.get("id"));
-    const dir = String(form.get("dir")) as "up" | "down";
-    await moveCategory(db, id, dir);
+  if (intent === "reorder") {
+    // El form envía múltiples campos "ids[]" con el orden deseado
+    const ids = form.getAll("ids[]").map((v) => Number(v));
+    await reorderCategories(db, ids);
     return { ok: true };
   }
   if (intent === "delete") {
@@ -101,7 +101,7 @@ export default function AdminCategorias({ loaderData, actionData }: Route.Compon
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-brand-ink">Categorías</h1>
         <p className="mt-1 text-sm text-brand-ink-soft">
-          Organiza el catálogo por tipo de producto
+          Arrastra las categorías para reordenarlas · Organiza el catálogo por tipo de producto
         </p>
       </header>
 
@@ -112,68 +112,12 @@ export default function AdminCategorias({ loaderData, actionData }: Route.Compon
       ) : null}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Lista de categorías */}
+        {/* Lista de categorías con drag & drop */}
         <div>
           <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[1.5px] text-brand-ink-light">
             Existentes ({categories.length})
           </h2>
-          <div className="divide-y divide-border border border-border bg-surface">
-            {categories.map((c, idx) => (
-              <div key={c.id} className="flex items-center gap-3 p-3">
-                <div className="h-10 w-10 shrink-0 overflow-hidden border border-border bg-surface-off">
-                  {c.imageKey ? (
-                    <img src={`/media/${c.imageKey}`} alt={c.name} className="h-full w-full object-cover" />
-                  ) : null}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className={`truncate text-sm font-medium ${c.active ? "text-brand-ink" : "text-brand-ink-light"}`}>
-                    {c.name}
-                  </p>
-                  <p className="text-[11px] text-brand-ink-light">
-                    /{c.slug} · {c.productCount} producto(s)
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-0.5">
-                  <Form method="post" className="contents">
-                    <input type="hidden" name="intent" value="move" />
-                    <input type="hidden" name="id" value={c.id} />
-                    <input type="hidden" name="dir" value="up" />
-                    <button type="submit" disabled={idx === 0} aria-label="Subir" className="p-1.5 text-brand-ink-soft hover:text-brand-ink disabled:opacity-30">
-                      <ArrowUp size={14} strokeWidth={1.5} />
-                    </button>
-                  </Form>
-                  <Form method="post" className="contents">
-                    <input type="hidden" name="intent" value="move" />
-                    <input type="hidden" name="id" value={c.id} />
-                    <input type="hidden" name="dir" value="down" />
-                    <button type="submit" disabled={idx === categories.length - 1} aria-label="Bajar" className="p-1.5 text-brand-ink-soft hover:text-brand-ink disabled:opacity-30">
-                      <ArrowDown size={14} strokeWidth={1.5} />
-                    </button>
-                  </Form>
-                  <button
-                    type="button"
-                    onClick={() => setEditing(c)}
-                    aria-label="Editar"
-                    className="p-1.5 text-brand-ink-soft hover:text-brand-ink"
-                  >
-                    <Pencil size={14} strokeWidth={1.5} />
-                  </button>
-                  <Form method="post" className="contents" onSubmit={(e) => {
-                    if (!confirm(`¿Eliminar la categoría "${c.name}"?`)) e.preventDefault();
-                  }}>
-                    <input type="hidden" name="intent" value="delete" />
-                    <input type="hidden" name="id" value={c.id} />
-                    <button type="submit" aria-label="Eliminar" className="p-1.5 text-brand-ink-soft hover:text-error">
-                      <Trash2 size={14} strokeWidth={1.5} />
-                    </button>
-                  </Form>
-                </div>
-              </div>
-            ))}
-            {categories.length === 0 ? (
-              <p className="p-6 text-center text-sm text-brand-ink-soft">No hay categorías.</p>
-            ) : null}
-          </div>
+          <CategoryList categories={categories} onEdit={(c) => setEditing(c)} saved={saved} />
         </div>
 
         {/* Formulario crear/editar */}
@@ -192,6 +136,159 @@ export default function AdminCategorias({ loaderData, actionData }: Route.Compon
         </div>
       </div>
     </AdminShell>
+  );
+}
+
+/* ============================================================
+   Lista de categorías con drag & drop (HTML5 nativo, sin libs)
+   ============================================================ */
+
+function CategoryList({
+  categories,
+  onEdit,
+  saved,
+}: {
+  categories: any[];
+  onEdit: (c: any) => void;
+  saved?: boolean;
+}) {
+  const [items, setItems] = useState(categories);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Sincronizar cuando el loader trae datos nuevos (tras reorder/delete/create)
+  useState(() => {
+    setItems(categories);
+  });
+  // También tras cada render si cambió el array del loader
+  if (items !== categories && JSON.stringify(items.map((i) => i.id)) !== JSON.stringify(categories.map((i) => i.id))) {
+    setItems(categories);
+  }
+
+  function handleDragStart(idx: number) {
+    setDragIndex(idx);
+  }
+
+  function handleDragOver(e: React.DragEvent, idx: number) {
+    e.preventDefault(); // necesario para permitir drop
+    if (dragIndex !== null && dragIndex !== idx) {
+      setOverIndex(idx);
+    }
+  }
+
+  function handleDrop(idx: number) {
+    if (dragIndex === null || dragIndex === idx) {
+      setDragIndex(null);
+      setOverIndex(null);
+      return;
+    }
+    // Reordenar: mover el elemento de dragIndex a idx
+    const next = [...items];
+    const [moved] = next.splice(dragIndex, 1);
+    next.splice(idx, 0, moved);
+    setItems(next);
+    setDragIndex(null);
+    setOverIndex(null);
+
+    // Enviar el nuevo orden al servidor
+    const form = formRef.current;
+    if (form) {
+      // Limpiar inputs previos
+      form.querySelectorAll('input[name="ids[]"]').forEach((el) => el.remove());
+      // Añadir los IDs en el nuevo orden
+      next.forEach((cat) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "ids[]";
+        input.value = String(cat.id);
+        form.appendChild(input);
+      });
+      form.requestSubmit();
+    }
+  }
+
+  function handleDragEnd() {
+    setDragIndex(null);
+    setOverIndex(null);
+  }
+
+  return (
+    <>
+      <div className="divide-y divide-border border border-border bg-surface">
+        {items.map((c, idx) => {
+          const isDragging = dragIndex === idx;
+          const isOver = overIndex === idx && dragIndex !== idx;
+          return (
+            <div
+              key={c.id}
+              draggable
+              onDragStart={() => handleDragStart(idx)}
+              onDragOver={(e) => handleDragOver(e, idx)}
+              onDrop={() => handleDrop(idx)}
+              onDragEnd={handleDragEnd}
+              className={`flex items-center gap-3 p-3 transition-shadow ${
+                isDragging ? "opacity-50 shadow-lg ring-1 ring-brand-ink/20" : ""
+              } ${isOver ? "border-t-2 border-t-brand-ink" : ""}`}
+            >
+              {/* Handle de arrastre */}
+              <span
+                className="cursor-grab text-brand-ink-light hover:text-brand-ink active:cursor-grabbing"
+                aria-label="Arrastrar para reordenar"
+              >
+                <GripVertical size={16} strokeWidth={1.5} />
+              </span>
+
+              {/* Miniatura */}
+              <div className="h-10 w-10 shrink-0 overflow-hidden border border-border bg-surface-off">
+                {c.imageKey ? (
+                  <img src={`/media/${c.imageKey}`} alt={c.name} className="h-full w-full object-cover" />
+                ) : null}
+              </div>
+
+              {/* Info */}
+              <div className="min-w-0 flex-1">
+                <p className={`truncate text-sm font-medium ${c.active ? "text-brand-ink" : "text-brand-ink-light"}`}>
+                  {c.name}
+                </p>
+                <p className="text-[11px] text-brand-ink-light">
+                  /{c.slug} · {c.productCount} producto(s)
+                </p>
+              </div>
+
+              {/* Acciones */}
+              <div className="flex shrink-0 items-center gap-0.5">
+                <button
+                  type="button"
+                  onClick={() => onEdit(c)}
+                  aria-label="Editar"
+                  className="p-1.5 text-brand-ink-soft hover:text-brand-ink"
+                >
+                  <Pencil size={14} strokeWidth={1.5} />
+                </button>
+                <Form method="post" className="contents" onSubmit={(e) => {
+                  if (!confirm(`¿Eliminar la categoría "${c.name}"?`)) e.preventDefault();
+                }}>
+                  <input type="hidden" name="intent" value="delete" />
+                  <input type="hidden" name="id" value={c.id} />
+                  <button type="submit" aria-label="Eliminar" className="p-1.5 text-brand-ink-soft hover:text-error">
+                    <Trash2 size={14} strokeWidth={1.5} />
+                  </button>
+                </Form>
+              </div>
+            </div>
+          );
+        })}
+        {items.length === 0 ? (
+          <p className="p-6 text-center text-sm text-brand-ink-soft">No hay categorías.</p>
+        ) : null}
+      </div>
+
+      {/* Form oculto para enviar el reorder al servidor */}
+      <Form ref={formRef} method="post" className="hidden">
+        <input type="hidden" name="intent" value="reorder" />
+      </Form>
+    </>
   );
 }
 
