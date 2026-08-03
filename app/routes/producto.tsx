@@ -112,13 +112,13 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
                 href={waLink}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex flex-1 items-center justify-center gap-2 rounded-pill bg-whatsapp px-6 py-3.5 text-sm font-bold text-white shadow-md transition-transform hover:scale-105"
+                className="inline-flex flex-1 items-center justify-center gap-2 rounded-pill bg-whatsapp px-5 py-2.5 text-xs font-bold text-white shadow-md transition-transform hover:scale-105"
               >
                 💬 Cotizar por WhatsApp
               </a>
               <Link
                 to="/cotizar"
-                className="inline-flex items-center justify-center rounded-pill border-2 border-brand-coral px-6 py-3.5 text-sm font-bold text-brand-coral transition-colors hover:bg-brand-coral hover:text-white"
+                className="inline-flex items-center justify-center rounded-pill border-2 border-brand-coral px-5 py-2.5 text-xs font-bold text-brand-coral transition-colors hover:bg-brand-coral hover:text-white"
               >
                 📝 Formulario
               </Link>

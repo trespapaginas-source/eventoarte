@@ -85,7 +85,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
                 to="/catalogo"
-                className="inline-flex items-center border border-brand-ink bg-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
+                className="inline-flex items-center border border-brand-ink bg-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
                 Ver catálogo
               </Link>
@@ -94,7 +94,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   href={`https://wa.me/${waNumber}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 border border-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+                  className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
                 >
                   💬 WhatsApp
                 </a>
@@ -216,7 +216,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
                 to="/cotizar"
-                className="inline-flex items-center border border-brand-ink bg-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
+                className="inline-flex items-center border border-brand-ink bg-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
                 Solicitar cotización
               </Link>
@@ -225,7 +225,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   href={`https://wa.me/${waNumber}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 border border-brand-ink px-7 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+                  className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
                 >
                   💬 WhatsApp
                 </a>
@@ -256,7 +256,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           <div className="mt-12 text-center">
             <Link
               to="/catalogo"
-              className="inline-block border border-brand-ink px-8 py-3.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+              className="inline-block border border-brand-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
             >
               Ver catálogo completo
             </Link>

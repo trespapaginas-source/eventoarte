@@ -81,13 +81,13 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
             </label>
           </Form>
 
-          {/* CTA WhatsApp (desktop) */}
+          {/* CTA WhatsApp (desktop) — sobrio, outline */}
           {waNumber ? (
             <a
               href={`https://wa.me/${waNumber}`}
               target="_blank"
               rel="noreferrer"
-              className="hidden rounded-pill bg-whatsapp px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:scale-105 hover:bg-whatsapp-dark md:inline-flex md:items-center md:gap-2"
+              className="hidden border border-brand-ink px-4 py-2 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white md:inline-flex md:items-center md:gap-1.5"
             >
               <span>💬</span>
               <span>Cotizar</span>

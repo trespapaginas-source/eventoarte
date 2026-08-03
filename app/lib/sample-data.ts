@@ -7,13 +7,13 @@
  */
 
 export const sampleCategories = [
-  { name: "Morrales", slug: "morrales", icon: "🎒", image: "/images/productos/morral-safari.svg" },
-  { name: "Loncheras", slug: "loncheras", icon: "🥪", image: "/images/productos/lonchera.svg" },
-  { name: "Cartucheras", slug: "cartucheras", icon: "✏️", image: "/images/productos/cartuchera.svg" },
-  { name: "Tulas", slug: "tulas", icon: "👜", image: "/images/productos/tula.svg" },
-  { name: "Cangureras", slug: "cangureras", icon: "👛", image: "/images/productos/cangurera.svg" },
-  { name: "Recordatorios", slug: "recordatorios", icon: "🎁", image: "/images/productos/recordatorio.svg" },
-  { name: "Piñatería", slug: "pinateria", icon: "🎉", image: "/images/productos/pinateria.svg" },
+  { name: "Morrales", slug: "morrales", icon: "🎒", image: "/images/productos/fotos/morral-safari.jpg" },
+  { name: "Loncheras", slug: "loncheras", icon: "🥪", image: "/images/productos/fotos/lonchera.jpg" },
+  { name: "Cartucheras", slug: "cartucheras", icon: "✏️", image: "/images/productos/fotos/cartuchera.jpg" },
+  { name: "Tulas", slug: "tulas", icon: "👜", image: "/images/productos/fotos/tula.jpg" },
+  { name: "Cangureras", slug: "cangureras", icon: "👛", image: "/images/productos/fotos/cangurera.jpg" },
+  { name: "Recordatorios", slug: "recordatorios", icon: "🎁", image: "/images/productos/fotos/recordatorio.jpg" },
+  { name: "Piñatería", slug: "pinateria", icon: "🎉", image: "/images/productos/fotos/pinateria.jpg" },
 ];
 
 // Mantiene compatibilidad con código existente que usa sampleOccasions
@@ -84,8 +84,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/morral-safari.svg",
-    gallery: ["/images/productos/morral-safari.svg"],
+    image: "/images/productos/fotos/morral-safari.jpg",
+    gallery: ["/images/productos/fotos/morral-safari.jpg"],
   },
   {
     id: 2,
@@ -117,8 +117,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/lonchera.svg",
-    gallery: ["/images/productos/lonchera.svg"],
+    image: "/images/productos/fotos/lonchera.jpg",
+    gallery: ["/images/productos/fotos/lonchera.jpg"],
   },
   {
     id: 3,
@@ -149,8 +149,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/cartuchera.svg",
-    gallery: ["/images/productos/cartuchera.svg"],
+    image: "/images/productos/fotos/cartuchera.jpg",
+    gallery: ["/images/productos/fotos/cartuchera.jpg"],
   },
   {
     id: 4,
@@ -182,8 +182,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/tula.svg",
-    gallery: ["/images/productos/tula.svg"],
+    image: "/images/productos/fotos/tula.jpg",
+    gallery: ["/images/productos/fotos/tula.jpg"],
   },
   {
     id: 5,
@@ -215,8 +215,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/recordatorio.svg",
-    gallery: ["/images/productos/recordatorio.svg"],
+    image: "/images/productos/fotos/recordatorio.jpg",
+    gallery: ["/images/productos/fotos/recordatorio.jpg"],
   },
   {
     id: 6,
@@ -247,8 +247,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/cangurera.svg",
-    gallery: ["/images/productos/cangurera.svg"],
+    image: "/images/productos/fotos/cangurera.jpg",
+    gallery: ["/images/productos/fotos/cangurera.jpg"],
   },
   {
     id: 7,
@@ -279,8 +279,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/pinateria.svg",
-    gallery: ["/images/productos/pinateria.svg"],
+    image: "/images/productos/fotos/pinateria.jpg",
+    gallery: ["/images/productos/fotos/pinateria.jpg"],
   },
   {
     id: 8,
@@ -311,8 +311,8 @@ export const sampleProducts: SampleProduct[] = [
     ogImageKey: null,
     createdAt: 0,
     updatedAt: 0,
-    image: "/images/productos/morral-escolar.svg",
-    gallery: ["/images/productos/morral-escolar.svg"],
+    image: "/images/productos/fotos/morral-escolar.jpg",
+    gallery: ["/images/productos/fotos/morral-escolar.jpg"],
   },
 ];
 
