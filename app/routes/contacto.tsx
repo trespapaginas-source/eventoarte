@@ -1,11 +1,16 @@
 import type { Route } from "./+types/contacto";
-import { Link } from "react-router";
 import { MessageCircle, Camera, Mail, MapPin, ArrowRight } from "lucide-react";
 import { PublicLayout } from "~/components/layout/PublicLayout";
+import { BrandLink, BrandForm } from "~/lib/brand-links";
+import { buildWhatsAppSimpleLink } from "~/lib/whatsapp";
+import { getDb } from "~/lib/db/client";
+import { loadPublicData } from "~/lib/public-data";
+import { isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
-export function meta(_: Route.MetaArgs) {
-  return [
+export function meta({ params }: Route.MetaArgs) {
+  const noindex = !isIndexedBrand(resolveBrand(params.brand));
+  const tags = [
     { title: "Contacto — recuerdos.store" },
     {
       name: "description",
@@ -13,23 +18,28 @@ export function meta(_: Route.MetaArgs) {
         "Contáctanos para personalizar los recordatorios perfectos para tu evento. WhatsApp, Instagram y formulario de cotización.",
     },
   ];
+  if (noindex) tags.push({ name: "robots", content: "noindex, nofollow" });
+  return tags;
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
-  const { env } = context.get(cloudflareContext);
-  return { waNumber: env.WA_NUMBER, publicUrl: env.PUBLIC_URL };
+export async function loader({ context, params }: Route.LoaderArgs) {
+  const env = context.get(cloudflareContext).env;
+  const db = env.DB ? getDb(env.DB) : null;
+  return loadPublicData({ db, brandSlug: params.brand, publicUrl: env.PUBLIC_URL });
 }
 
 export default function Contacto({ loaderData }: Route.ComponentProps) {
-  const { waNumber, publicUrl } = loaderData;
+  const { brand, banner } = loaderData;
+  const waLink = buildWhatsAppSimpleLink(brand);
+  const instagram = brand.instagram;
 
   return (
-    <PublicLayout waNumber={waNumber}>
+    <PublicLayout brand={brand} banner={banner}>
       {/* Encabezado */}
       <section className="border-b border-border bg-surface-off">
         <div className="container-page py-12 text-center">
           <nav className="mb-3 text-xs text-brand-ink-soft" aria-label="Migas de pan">
-            <Link to="/" className="hover:text-brand-ink">Inicio</Link>
+            <BrandLink to="/" className="hover:text-brand-ink">Inicio</BrandLink>
             <span className="mx-2">/</span>
             <span className="text-brand-ink">Contacto</span>
           </nav>
@@ -51,26 +61,24 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
           </h2>
 
           <div className="mt-5 space-y-3">
-            {waNumber ? (
-              <a
-                href={`https://wa.me/${waNumber}`}
-                target="_blank"
-                rel="noreferrer"
-                className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
-              >
-                <span className="flex h-11 w-11 items-center justify-center bg-brand-ink text-white">
-                  <MessageCircle size={18} strokeWidth={1.5} />
-                </span>
-                <div>
-                  <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">WhatsApp</p>
-                  <p className="text-sm font-medium text-brand-ink">+{waNumber} · Respuesta rápida</p>
-                </div>
-                <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
-              </a>
-            ) : null}
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noreferrer"
+              className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
+            >
+              <span className="flex h-11 w-11 items-center justify-center bg-brand-ink text-white">
+                <MessageCircle size={18} strokeWidth={1.5} />
+              </span>
+              <div>
+                <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">WhatsApp</p>
+                <p className="text-sm font-medium text-brand-ink">{brand.name} · Respuesta rápida</p>
+              </div>
+              <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
+            </a>
 
             <a
-              href="https://instagram.com/recuerdos.store"
+              href={instagram}
               target="_blank"
               rel="noreferrer"
               className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
@@ -80,7 +88,7 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
               </span>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">Instagram</p>
-                <p className="text-sm font-medium text-brand-ink">@recuerdos.store</p>
+                <p className="text-sm font-medium text-brand-ink">@{brand.name}</p>
               </div>
               <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
             </a>
@@ -141,7 +149,7 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
             Completa el formulario y te contactaremos a la brevedad.
           </p>
 
-          <form method="post" action="/cotizar" className="mt-6 space-y-4">
+          <BrandForm method="post" action="/cotizar" className="mt-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField label="Nombre" name="name" required />
               <FormField label="Teléfono / WhatsApp" name="phone" type="tel" required />
@@ -196,7 +204,7 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
             <p className="text-center text-[11px] text-brand-ink-light">
               Te responderemos en menos de 24 horas hábiles.
             </p>
-          </form>
+          </BrandForm>
         </div>
       </section>
     </PublicLayout>

@@ -1,9 +1,12 @@
 import type { Route } from "./+types/home";
-import { Link } from "react-router";
 import { MessageCircle, Sparkles, Zap, Palette } from "lucide-react";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
+import { BrandLink } from "~/lib/brand-links";
+import { buildWhatsAppSimpleLink, buildWhatsAppGeneralLink } from "~/lib/whatsapp";
+import { canonicalUrl, isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { getDb } from "~/lib/db/client";
+import { loadPublicData } from "~/lib/public-data";
 import {
   getActiveCategories,
   getFeaturedProducts,
@@ -18,14 +21,15 @@ import { cloudflareContext } from "~/lib/cloudflare-context";
 
 /**
  * Home de recuerdos.store — estilo premium inspirado en Vélez.
- * Sección 5.2 del Documento Técnico.
  *
- * Estructura: Barra anuncio → Header → Hero → Categorías (con imagen) →
- * Destacados → Banner CTA → Catálogo → Footer.
+ * Estructura: Barra anuncio → Header → Hero → Categorías →
+ * Cinta promocional (editable) → Destacados → Banner CTA → Catálogo → Footer.
  */
-export function meta(_: Route.MetaArgs) {
+export function meta({ params }: Route.MetaArgs) {
   const publicUrl = "https://recuerdos.store";
-  return [
+  const brand = resolveBrand(params.brand);
+  const noindex = !isIndexedBrand(brand);
+  const tags = [
     {
       title: "recuerdos.store — Recordatorios personalizados para tus celebraciones",
     },
@@ -34,7 +38,7 @@ export function meta(_: Route.MetaArgs) {
       content:
         "Morrales, loncheras, cartucheras, tulas y recordatorios personalizados para cumpleaños, baby shower, quinceaños, bautizos y más. Fabricación nacional. Cotiza por WhatsApp.",
     },
-    { tagName: "link", rel: "canonical", href: `${publicUrl}/` },
+    { tagName: "link", rel: "canonical", href: canonicalUrl(publicUrl, "/") },
     { property: "og:type", content: "website" },
     { property: "og:title", content: "recuerdos.store — Recordatorios personalizados" },
     {
@@ -42,50 +46,72 @@ export function meta(_: Route.MetaArgs) {
       content:
         "Morrales, loncheras, tulas y recordatorios personalizados para tus celebraciones. Cotiza por WhatsApp.",
     },
-    { property: "og:url", content: `${publicUrl}/` },
+    { property: "og:url", content: canonicalUrl(publicUrl, "/") },
     {
       property: "og:image",
       content: `${publicUrl}/images/productos/fotos/morral-safari.jpg`,
     },
     { name: "twitter:card", content: "summary_large_image" },
   ];
+  if (noindex) {
+    tags.push({ name: "robots", content: "noindex, nofollow" });
+  }
+  return tags;
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
+export async function loader({ context, params }: Route.LoaderArgs) {
   const { env } = context.get(cloudflareContext);
+  const db = env.DB ? getDb(env.DB) : null;
 
-  let featured: SampleProduct[] = sampleProducts.filter((p) => p.featured);
-  let catalog: SampleProduct[] = sampleProducts;
-  let categories = sampleCategories;
+  const [site, featured, catalog, categories] = await Promise.all([
+    loadPublicData({ db, brandSlug: params.brand, publicUrl: env.PUBLIC_URL }),
+    (async () => {
+      let f: SampleProduct[] = sampleProducts.filter((p) => p.featured);
+      try {
+        if (db) {
+          const r = await getFeaturedProducts(db, 4);
+          if (r.length) f = r as any;
+        }
+      } catch {}
+      return f;
+    })(),
+    (async () => {
+      let c: SampleProduct[] = sampleProducts;
+      try {
+        if (db) {
+          const r = await listProducts(db, { sort: "featured" });
+          if (r.length) c = r as any;
+        }
+      } catch {}
+      return c;
+    })(),
+    (async () => {
+      let cats = sampleCategories;
+      try {
+        if (db) {
+          const r = await getActiveCategories(db);
+          if (r.length) cats = r as any;
+        }
+      } catch {}
+      return cats;
+    })(),
+  ]);
 
-  try {
-    if (env.DB) {
-      const db = getDb(env.DB);
-      const [f, c, cats] = await Promise.all([
-        getFeaturedProducts(db, 4),
-        listProducts(db, { sort: "featured" }),
-        getActiveCategories(db),
-      ]);
-      if (f.length) featured = f as any;
-      if (c.length) catalog = c as any;
-      if (cats.length) categories = cats as any;
-    }
-  } catch {
-    // D1 no disponible todavía: usamos datos de muestra silenciosamente.
-  }
-
-  return { featured, catalog, categories, waNumber: env.WA_NUMBER, publicUrl: env.PUBLIC_URL };
+  return { ...site, featured, catalog, categories };
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { featured, catalog, categories, waNumber, publicUrl } = loaderData;
+  const { featured, catalog, categories, brand, publicUrl, banner, promo } = loaderData;
+
+  const waSimple = buildWhatsAppSimpleLink(brand);
+  const waGeneral = buildWhatsAppGeneralLink(brand);
 
   // En el home mostramos "destacados" y luego "más productos" (sin duplicar).
   const featuredIds = new Set(featured.map((p: any) => p.id ?? p.code));
   const restOfCatalog = catalog.filter((p: any) => !featuredIds.has(p.id ?? p.code));
 
   return (
-    <PublicLayout waNumber={waNumber}>
+    <PublicLayout brand={brand} banner={banner}>
       {/* ===================== HERO ===================== */}
       <section className="relative overflow-hidden border-b border-border bg-surface">
         <div className="container-page grid items-center gap-8 py-14 md:grid-cols-2 md:py-20">
@@ -104,23 +130,21 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               cumpleaños, baby shower, quinceaños y todas tus celebraciones.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link
+              <BrandLink
                 to="/catalogo"
                 className="inline-flex items-center border border-brand-ink bg-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
                 Ver catálogo
-              </Link>
-              {waNumber ? (
-                <a
-                  href={`https://wa.me/${waNumber}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
-                >
-                  <MessageCircle size={14} strokeWidth={1.5} />
-                  WhatsApp
-                </a>
-              ) : null}
+              </BrandLink>
+              <a
+                href={waSimple}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+              >
+                <MessageCircle size={14} strokeWidth={1.5} />
+                WhatsApp
+              </a>
             </div>
 
             {/* Trust badges */}
@@ -181,7 +205,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
           {categories.map((cat: any) => (
-            <Link
+            <BrandLink
               key={cat.slug}
               to={`/categoria/${cat.slug}`}
               className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-all hover:-translate-y-1 hover:border-brand-ink hover:shadow-md"
@@ -197,10 +221,31 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               <span className="font-display text-sm font-semibold text-brand-ink transition-opacity group-hover:opacity-70">
                 {cat.name}
               </span>
-            </Link>
+            </BrandLink>
           ))}
         </div>
       </section>
+
+      {/* ===================== CINTA PROMOCIONAL (editable) ===================== */}
+      {promo.active && promo.text ? (
+        <section aria-label="Promoción">
+          <div className="relative overflow-hidden bg-gradient-brand">
+            {/* Capa decorativa para sensación de profundidad/movimiento */}
+            <div
+              className="pointer-events-none absolute inset-0 opacity-30"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.4) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(255,255,255,0.25) 0%, transparent 50%)",
+              }}
+            />
+            <div className="container-page relative z-10 py-4 text-center md:py-5">
+              <p className="text-sm font-semibold uppercase tracking-[2px] text-white md:text-base">
+                {promo.text}
+              </p>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* ===================== DESTACADOS ===================== */}
       {featured.length > 0 ? (
@@ -213,7 +258,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 </h2>
                 <p className="mt-2 text-brand-ink-soft">Los favoritos de nuestros clientes</p>
               </div>
-              <Link
+              <BrandLink
                 to="/catalogo"
                 className="hidden items-center gap-1 text-sm font-bold text-brand-ink transition-opacity hover:opacity-70 sm:flex"
               >
@@ -221,12 +266,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
-              </Link>
+              </BrandLink>
             </div>
 
             <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
               {featured.map((p: any) => (
-                <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
+                <ProductCard key={p.id ?? p.code} product={p} />
               ))}
             </div>
           </div>
@@ -248,23 +293,21 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               perfectos. Cotización sin compromiso.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <Link
+              <BrandLink
                 to="/cotizar"
                 className="inline-flex items-center border border-brand-ink bg-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
                 Solicitar cotización
-              </Link>
-              {waNumber ? (
-                <a
-                  href={`https://wa.me/${waNumber}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
-                >
-                  <MessageCircle size={14} strokeWidth={1.5} />
-                  WhatsApp
-                </a>
-              ) : null}
+              </BrandLink>
+              <a
+                href={waGeneral}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
+              >
+                <MessageCircle size={14} strokeWidth={1.5} />
+                WhatsApp
+              </a>
             </div>
           </div>
         </div>
@@ -284,17 +327,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-6">
             {restOfCatalog.map((p: any) => (
-              <ProductCard key={p.id ?? p.code} product={p} waNumber={waNumber} publicUrl={publicUrl} />
+              <ProductCard key={p.id ?? p.code} product={p} />
             ))}
           </div>
 
           <div className="mt-12 text-center">
-            <Link
+            <BrandLink
               to="/catalogo"
               className="inline-block border border-brand-ink px-6 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
             >
               Ver catálogo completo
-            </Link>
+            </BrandLink>
           </div>
         </section>
       ) : null}

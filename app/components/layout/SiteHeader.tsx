@@ -1,14 +1,18 @@
-import { Link, Form } from "react-router";
 import { useState } from "react";
 import { Search, Menu, X, MessageCircle } from "lucide-react";
 import { Logo } from "./Logo";
+import { BrandLink, BrandForm } from "~/lib/brand-links";
+import { buildWhatsAppSimpleLink } from "~/lib/whatsapp";
+import { brandPath, type BrandConfig } from "~/lib/brand";
 
 /**
  * Header público de recuerdos.store — estilo editorial minimalista.
  * Blanco y negro predominante, sin emojis.
  *
- * Estructura: barra superior fina + header principal con logo, navegación por
- * categorías de producto, buscador y CTA de WhatsApp.
+ * Recibe la marca activa para resolver el WhatsApp correcto, y el
+ * banner superior editable (texto + link + activo).
+ * La navegación interna usa BrandLink/BrandForm para mantenerse dentro
+ * del directorio de marca activo.
  */
 
 const NAV_CATEGORIES = [
@@ -21,23 +25,51 @@ const NAV_CATEGORIES = [
   { label: "Piñatería", to: "/categoria/pinateria" },
 ];
 
-export function SiteHeader({ waNumber }: { waNumber?: string }) {
+export interface TopBanner {
+  text: string;
+  active: boolean;
+  link?: string | null;
+}
+
+export function SiteHeader({
+  brand,
+  banner,
+}: {
+  brand?: BrandConfig;
+  banner?: TopBanner;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const showBanner = banner?.active && banner?.text;
+  const waLink = brand ? buildWhatsAppSimpleLink(brand) : null;
+  const homePath = brand ? brandPath("/", brand) : "/";
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface">
-      {/* Barra superior fina (estilo Vélez: tracked caps) */}
-      <div className="bg-brand-ink py-2 text-center">
-        <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
-          Fabricación nacional · Personalización para cada celebración
-        </span>
-      </div>
+      {/* Barra superior fina editable (banner.top) */}
+      {showBanner ? (
+        banner!.link ? (
+          <a
+            href={banner!.link}
+            className="block bg-brand-ink py-2 text-center transition-opacity hover:opacity-90"
+          >
+            <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
+              {banner!.text}
+            </span>
+          </a>
+        ) : (
+          <div className="bg-brand-ink py-2 text-center">
+            <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
+              {banner!.text}
+            </span>
+          </div>
+        )
+      ) : null}
 
       {/* Header principal */}
       <div className="container-page">
         <div className="flex h-20 items-center gap-4">
           {/* Logo */}
-          <Logo to="/" size={32} textClassName="text-2xl md:text-3xl" />
+          <Logo to={homePath} size={32} textClassName="text-2xl md:text-3xl" />
 
           {/* Navegación desktop */}
           <nav
@@ -46,26 +78,26 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
           >
             {/* Categorías de producto */}
             {NAV_CATEGORIES.map((item) => (
-              <Link
+              <BrandLink
                 key={item.to}
                 to={item.to}
                 className="text-[12px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft transition-colors hover:text-brand-ink"
               >
                 {item.label}
-              </Link>
+              </BrandLink>
             ))}
 
             {/* Contacto */}
-            <Link
+            <BrandLink
               to="/contacto"
               className="ml-auto text-[12px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft transition-colors hover:text-brand-ink"
             >
               Contacto
-            </Link>
+            </BrandLink>
           </nav>
 
           {/* Buscador (desktop) */}
-          <Form action="/buscar" className="ml-auto hidden md:block">
+          <BrandForm action="/buscar" className="ml-auto hidden md:block">
             <label className="relative block w-48 lg:w-56">
               <span className="sr-only">Buscar productos</span>
               <input
@@ -82,12 +114,12 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
                 <Search size={16} strokeWidth={1.5} />
               </button>
             </label>
-          </Form>
+          </BrandForm>
 
           {/* CTA WhatsApp (desktop) — sobrio, outline */}
-          {waNumber ? (
+          {waLink ? (
             <a
-              href={`https://wa.me/${waNumber}`}
+              href={waLink}
               target="_blank"
               rel="noreferrer"
               className="hidden border border-brand-ink px-4 py-2 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white md:inline-flex md:items-center md:gap-1.5"
@@ -120,27 +152,27 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
           <nav className="container-page flex flex-col gap-1 py-4" aria-label="Navegación (móvil)">
             {/* Categorías */}
             {NAV_CATEGORIES.map((item) => (
-              <Link
+              <BrandLink
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileOpen(false)}
                 className="rounded-md px-3 py-2.5 text-sm font-medium text-brand-ink-soft transition-colors hover:bg-surface-off hover:text-brand-ink"
               >
                 {item.label}
-              </Link>
+              </BrandLink>
             ))}
 
             <div className="my-1 h-px bg-border" />
-            <Link
+            <BrandLink
               to="/contacto"
               onClick={() => setMobileOpen(false)}
               className="rounded-md px-3 py-2.5 text-sm font-medium text-brand-ink-soft transition-colors hover:bg-surface-off hover:text-brand-ink"
             >
               Contacto
-            </Link>
+            </BrandLink>
 
             {/* Buscador móvil */}
-            <Form action="/buscar" className="mt-2">
+            <BrandForm action="/buscar" className="mt-2">
               <label className="relative block">
                 <span className="sr-only">Buscar productos</span>
                 <input
@@ -150,11 +182,11 @@ export function SiteHeader({ waNumber }: { waNumber?: string }) {
                   className="w-full rounded-full border border-border bg-surface-off py-2.5 pl-4 pr-10 text-sm focus:border-brand-ink focus:outline-none"
                 />
               </label>
-            </Form>
+            </BrandForm>
 
-            {waNumber ? (
+            {waLink ? (
               <a
-                href={`https://wa.me/${waNumber}`}
+                href={waLink}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-2 inline-flex items-center justify-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"

@@ -62,6 +62,37 @@ export default function AdminAjustes({ loaderData, actionData }: Route.Component
       ) : null}
 
       <Form method="post" className="space-y-6 pb-20 md:pb-6">
+        {/* Banner superior (barra negra fina del header) */}
+        <Section title="Banner superior">
+          <Field label="Texto del banner" name="banner.top.text" hint="Aparece en la barra superior del sitio">
+            <TextInput
+              name="banner.top.text"
+              defaultValue={get("banner.top.text", "Fabricación Nacional · Personalización para cada celebración")}
+              placeholder="Fabricación Nacional · Personalización para cada celebración"
+            />
+          </Field>
+          <Field label="Link del banner (opcional)" name="banner.top.link" hint="URL a la que lleva al hacer clic. Vacío = sin link">
+            <TextInput name="banner.top.link" defaultValue={get("banner.top.link")} placeholder="/catalogo o https://..." />
+          </Field>
+          <ToggleRow
+            name="banner.top.active"
+            label="Mostrar banner"
+            defaultChecked={get("banner.top.active", "true") === "true"}
+          />
+        </Section>
+
+        {/* Cinta promocional (entre categorías y destacados del home) */}
+        <Section title="Cinta promocional">
+          <Field label="Texto de la promoción" name="promo.text" hint="Banda con degradado en el home. Ej: Envío gratis por compras al por mayor">
+            <TextInput name="promo.text" defaultValue={get("promo.text")} placeholder="Envío gratis por compras al por mayor" />
+          </Field>
+          <ToggleRow
+            name="promo.active"
+            label="Mostrar cinta promocional"
+            defaultChecked={get("promo.active", "false") === "true"}
+          />
+        </Section>
+
         {/* Contacto */}
         <Section title="Contacto y redes">
           <Field label="Número de WhatsApp" name="site.whatsapp" hint="Formato internacional sin +, ej: 573001234567">
@@ -97,6 +128,33 @@ export default function AdminAjustes({ loaderData, actionData }: Route.Component
         </div>
       </Form>
     </AdminShell>
+  );
+}
+
+/** Fila toggle reutilizable (mismo patrón que ProductForm). */
+function ToggleRow({
+  name,
+  label,
+  defaultChecked,
+}: {
+  name: string;
+  label: string;
+  defaultChecked?: boolean;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between">
+      <span className="text-sm text-brand-ink">{label}</span>
+      <input
+        type="checkbox"
+        name={name}
+        value="true"
+        defaultChecked={defaultChecked}
+        className="peer sr-only"
+      />
+      <span className="relative h-6 w-11 rounded-full border border-border bg-surface-off transition-colors peer-checked:bg-brand-ink after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-surface after:transition-transform peer-checked:after:translate-x-5" />
+      {/* Fallback value cuando el checkbox está desmarcado */}
+      <input type="hidden" name={name} value="false" />
+    </label>
   );
 }
 

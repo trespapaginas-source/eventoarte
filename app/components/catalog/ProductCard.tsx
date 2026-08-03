@@ -1,8 +1,9 @@
-import { Link } from "react-router";
 import { ArrowRight, Package } from "lucide-react";
+import { BrandLink } from "~/lib/brand-links";
 
 /**
  * Tarjeta de producto — estilo premium sobrio (tipo Vélez).
+ * La navegación usa BrandLink para respetar el directorio de marca activo.
  * Refinamiento UX:
  *  - Imagen 1:1, zoom sutil al hover
  *  - Padding generoso pero contenido (no inflado)
@@ -26,8 +27,6 @@ const priceTypeLabel: Record<string, string> = {
 
 export interface ProductCardProps {
   product: any;
-  waNumber?: string;
-  publicUrl?: string;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -36,7 +35,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <article className="group relative flex flex-col bg-surface">
-      {/* Badges discretos (sobrios: tinta para "Más vendido", pastel sutil para "Nuevo") */}
+      {/* Badges discretos (sobrios: tinta para "Más vendido", degradado para "Nuevo") */}
       {product.isBestseller ? (
         <span className="absolute left-3 top-3 z-10 bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
           Más vendido
@@ -49,7 +48,7 @@ export function ProductCard({ product }: ProductCardProps) {
       ) : null}
 
       {/* Imagen 1:1 con zoom sutil */}
-      <Link
+      <BrandLink
         to={href}
         className="block aspect-square overflow-hidden bg-surface-off"
         aria-label={`Ver ${product.name}`}
@@ -67,7 +66,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <Package size={32} strokeWidth={1} className="text-brand-ink-light" />
           </div>
         )}
-      </Link>
+      </BrandLink>
 
       {/* Contenido — padding controlado */}
       <div className="flex flex-1 flex-col pt-3.5">
@@ -79,11 +78,11 @@ export function ProductCard({ product }: ProductCardProps) {
         ) : null}
 
         {/* Nombre */}
-        <Link to={href} className="hover:opacity-70">
+        <BrandLink to={href} className="hover:opacity-70">
           <h3 className="text-sm font-medium leading-snug text-brand-ink transition-opacity">
             {product.name}
           </h3>
-        </Link>
+        </BrandLink>
 
         {/* Código */}
         <p className="mt-0.5 text-[11px] text-brand-ink-light">{product.code}</p>
@@ -100,13 +99,13 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Botón discreto — texto link, no caja grande */}
-        <Link
+        <BrandLink
           to={href}
           className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink transition-opacity hover:opacity-70"
         >
           Ver producto
           <ArrowRight size={12} strokeWidth={1.5} />
-        </Link>
+        </BrandLink>
       </div>
     </article>
   );

@@ -4,16 +4,25 @@ import { PublicLayout } from "~/components/layout/PublicLayout";
 import { getDb } from "~/lib/db/client";
 import { insertQuote } from "~/lib/db/mutations";
 import { quoteInsertSchema } from "~/lib/validation";
+import { loadPublicData } from "~/lib/public-data";
+import { isIndexedBrand, resolveBrand } from "~/lib/brand";
+import { brandPath } from "~/lib/brand";
 
-export function meta(_: Route.MetaArgs) {
-  return [
+export function meta({ params }: Route.MetaArgs) {
+  const noindex = !isIndexedBrand(resolveBrand(params.brand));
+  const tags = [
     { title: "Solicitar cotización — recuerdos.store" },
     { name: "description", content: "Cuéntanos sobre tu evento y te enviamos una cotización a la medida." },
   ];
+  if (noindex) tags.push({ name: "robots", content: "noindex, nofollow" });
+  return tags;
 }
 
-export async function loader({ context }: Route.LoaderArgs) {
-  return { waNumber: context.get(cloudflareContext).env.WA_NUMBER };
+export async function loader({ context, params }: Route.LoaderArgs) {
+  const { env } = context.get(cloudflareContext);
+  const db = env.DB ? getDb(env.DB) : null;
+  const site = await loadPublicData({ db, brandSlug: params.brand, publicUrl: env.PUBLIC_URL });
+  return site;
 }
 
 /** Procesa el form público de cotización → inserta en tabla quotes. */
@@ -48,12 +57,13 @@ export async function action({ context, request }: Route.ActionArgs) {
 }
 
 export default function Cotizar({ loaderData, actionData }: Route.ComponentProps) {
-  const { waNumber } = loaderData;
+  const { brand, banner } = loaderData;
   const success = (actionData as { success?: boolean } | null)?.success;
   const error = (actionData as { error?: string } | null)?.error;
+  const homeHref = brandPath("/", brand);
 
   return (
-    <PublicLayout waNumber={waNumber}>
+    <PublicLayout brand={brand} banner={banner}>
       <section className="container-page py-12">
         <div className="mx-auto max-w-xl">
           {success ? (
@@ -63,7 +73,7 @@ export default function Cotizar({ loaderData, actionData }: Route.ComponentProps
                 Gracias por escribirnos. Te contactaremos en menos de 24 horas hábiles.
               </p>
               <a
-                href="/"
+                href={homeHref}
                 className="mt-6 inline-block border border-brand-ink bg-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
               >
                 Volver al inicio

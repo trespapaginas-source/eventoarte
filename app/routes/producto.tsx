@@ -1,19 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import type { Route } from "./+types/producto";
-import { Link } from "react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
+import { BrandLink } from "~/lib/brand-links";
 import { buildWhatsAppProductLink } from "~/lib/whatsapp";
+import { canonicalUrl, isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { formatCOP, priceTypeLabel } from "~/lib/format";
 import { sampleProducts, type SampleProduct } from "~/lib/sample-data";
+import { getDb } from "~/lib/db/client";
+import { loadPublicData } from "~/lib/public-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 import { productJsonLd, breadcrumbJsonLd } from "~/lib/seo";
 
 const PUBLIC_URL = "https://recuerdos.store";
 
-// En React Router v8 el `data` del loader no siempre se tipa en meta args.
-// Para máxima robustez, resolvemos el producto desde params.slug directamente.
 export function meta({ params }: Route.MetaArgs) {
   const product = sampleProducts.find((p) => p.slug === params.slug);
   if (!product) {
@@ -22,9 +23,10 @@ export function meta({ params }: Route.MetaArgs) {
       { name: "description", content: "El producto que buscas no está disponible." },
     ];
   }
-  const url = `${PUBLIC_URL}/producto/${product.slug}`;
+  const noindex = !isIndexedBrand(resolveBrand(params.brand));
+  const url = canonicalUrl(PUBLIC_URL, `/producto/${product.slug}`);
   const image = product.image ?? product.gallery?.[0];
-  return [
+  const tags = [
     { title: `${product.name} — recuerdos.store` },
     {
       name: "description",
@@ -40,15 +42,20 @@ export function meta({ params }: Route.MetaArgs) {
     { property: "og:image", content: `${PUBLIC_URL}${image}` },
     { name: "twitter:card", content: "summary_large_image" },
   ];
+  if (noindex) tags.push({ name: "robots", content: "noindex, nofollow" });
+  return tags;
 }
 
 export async function loader({ context, params }: Route.LoaderArgs) {
   const { env } = context.get(cloudflareContext);
+  const db = env.DB ? getDb(env.DB) : null;
   const product = sampleProducts.find((p) => p.slug === params.slug) ?? null;
 
   if (!product) {
     throw new Response("Producto no encontrado", { status: 404 });
   }
+
+  const site = await loadPublicData({ db, brandSlug: params.brand, publicUrl: env.PUBLIC_URL });
 
   // Relacionados: misma categoría primero, después mismos eventos
   const sameCat = sampleProducts.filter(
@@ -64,44 +71,43 @@ export async function loader({ context, params }: Route.LoaderArgs) {
 
   const waLink = buildWhatsAppProductLink(
     { name: product.name, code: product.code, minQty: product.minQty, slug: product.slug },
-    env.WA_NUMBER,
-    env.PUBLIC_URL,
+    site.brand,
+    site.publicUrl,
   );
 
-  // Datos para JSON-LD
-  const publicUrl = env.PUBLIC_URL.replace(/\/$/, "");
-  const url = `${publicUrl}/producto/${product.slug}`;
+  // Datos para JSON-LD (siempre apuntan a la URL canónica raíz)
+  const publicUrl = site.publicUrl;
+  const url = canonicalUrl(`https://${PUBLIC_URL.replace(/^https?:\/\//, "")}`, `/producto/${product.slug}`);
   const image = product.image ?? product.gallery?.[0];
 
   const jsonLdProduct = productJsonLd({
     name: product.name,
     sku: product.code,
     description: product.shortDesc,
-    image: `${publicUrl}${image}`,
+    image: `${PUBLIC_URL}${image}`,
     price: product.price,
     url,
   });
 
   const jsonLdBreadcrumb = breadcrumbJsonLd([
-    { name: "Inicio", url: `${publicUrl}/` },
-    { name: "Catálogo", url: `${publicUrl}/catalogo` },
-    { name: product.categoryName, url: `${publicUrl}/categoria/${product.categorySlug}` },
+    { name: "Inicio", url: canonicalUrl(PUBLIC_URL, "/") },
+    { name: "Catálogo", url: canonicalUrl(PUBLIC_URL, "/catalogo") },
+    { name: product.categoryName, url: canonicalUrl(PUBLIC_URL, `/categoria/${product.categorySlug}`) },
     { name: product.name, url },
   ]);
 
   return {
+    ...site,
     product,
     related,
     waLink,
-    waNumber: env.WA_NUMBER,
-    publicUrl,
     jsonLdProduct,
     jsonLdBreadcrumb,
   };
 }
 
 export default function Producto({ loaderData }: Route.ComponentProps) {
-  const { product, related, waLink, waNumber, jsonLdProduct, jsonLdBreadcrumb } = loaderData;
+  const { product, related, waLink, brand, banner, jsonLdProduct, jsonLdBreadcrumb } = loaderData;
   const p = product;
 
   // Detección de scroll para activar la barra inferior fija (sticky bar)
@@ -129,7 +135,7 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
   const priceText = `${priceTypeLabel(p.priceType)}${formatCOP(p.price)}`;
 
   return (
-    <PublicLayout waNumber={waNumber}>
+    <PublicLayout brand={brand} banner={banner}>
       {/* Datos estructurados SEO (Schema.org) */}
       <script
         type="application/ld+json"
@@ -143,20 +149,20 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
       <div className="container-page pb-24 pt-6 md:pb-12 md:pt-8">
         {/* Breadcrumb */}
         <nav className="mb-6 text-[11px] text-brand-ink-light" aria-label="Migas de pan">
-          <Link to="/" className="transition-colors hover:text-brand-ink">
+          <BrandLink to="/" className="transition-colors hover:text-brand-ink">
             Inicio
-          </Link>
+          </BrandLink>
           <span className="mx-1.5">/</span>
-          <Link to="/catalogo" className="transition-colors hover:text-brand-ink">
+          <BrandLink to="/catalogo" className="transition-colors hover:text-brand-ink">
             Catálogo
-          </Link>
+          </BrandLink>
           <span className="mx-1.5">/</span>
-          <Link
+          <BrandLink
             to={`/categoria/${p.categorySlug}`}
             className="capitalize transition-colors hover:text-brand-ink"
           >
             {p.categoryName}
-          </Link>
+          </BrandLink>
           <span className="mx-1.5">/</span>
           <span className="text-brand-ink-soft">{p.name}</span>
         </nav>
