@@ -19,11 +19,11 @@ export function buildWhatsAppProductLink(
   publicUrl: string,
 ): string {
   const lines = [
-    "¡Hola eventoarte! 👋 Quiero cotizar:",
-    `🛍️ ${product.name}`,
-    `🔖 Código: ${product.code}`,
-    `📦 Cantidad mínima: ${product.minQty} u`,
-    `🔗 ${publicUrl}/producto/${product.slug}`,
+    "¡Hola eventoarte! Quiero cotizar:",
+    `• ${product.name}`,
+    `• Código: ${product.code}`,
+    `• Cantidad mínima: ${product.minQty} u`,
+    `• ${publicUrl}/producto/${product.slug}`,
   ];
   const text = encodeURIComponent(lines.join("\n"));
   return `https://wa.me/${waNumber}?text=${text}`;
@@ -31,7 +31,7 @@ export function buildWhatsAppProductLink(
 
 export function buildWhatsAppGeneralLink(waNumber: string): string {
   const text = encodeURIComponent(
-    "¡Hola eventoarte! 👋 Quiero solicitar una cotización para un evento.",
+    "¡Hola eventoarte! Quiero solicitar una cotización para un evento.",
   );
   return `https://wa.me/${waNumber}?text=${text}`;
 }

@@ -16,8 +16,6 @@ export function loader({ context }: Route.LoaderArgs) {
   const urls: Entry[] = [
     { loc: `${base}/`, changefreq: "weekly", priority: "1.0" },
     { loc: `${base}/catalogo`, changefreq: "weekly", priority: "0.9" },
-    { loc: `${base}/ninos`, changefreq: "weekly", priority: "0.8" },
-    { loc: `${base}/ninas`, changefreq: "weekly", priority: "0.8" },
     { loc: `${base}/cotizar`, changefreq: "monthly", priority: "0.7" },
     { loc: `${base}/sobre-nosotros`, changefreq: "monthly", priority: "0.5" },
     { loc: `${base}/contacto`, changefreq: "monthly", priority: "0.5" },

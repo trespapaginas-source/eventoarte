@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { ArrowRight, Package } from "lucide-react";
 
 /**
  * Tarjeta de producto — estilo premium sobrio (tipo Vélez).
@@ -35,14 +36,14 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <article className="group relative flex flex-col bg-surface">
-      {/* Badges discretos (esquina, sobrios) */}
+      {/* Badges discretos (sobrios: tinta para "Más vendido", pastel sutil para "Nuevo") */}
       {product.isBestseller ? (
-        <span className="absolute left-3 top-3 z-10 bg-brand-coral px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
+        <span className="absolute left-3 top-3 z-10 bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
           Más vendido
         </span>
       ) : null}
       {product.isNew ? (
-        <span className="absolute right-3 top-3 z-10 bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
+        <span className="absolute right-3 top-3 z-10 bg-pastel-blush px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-brand-ink">
           Nuevo
         </span>
       ) : null}
@@ -62,8 +63,8 @@ export function ProductCard({ product }: ProductCardProps) {
             className="h-full w-full object-cover object-bottom transition-transform duration-700 ease-out group-hover:scale-105"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-4xl text-brand-ink-light">
-            🎁
+          <div className="flex h-full items-center justify-center bg-surface-off">
+            <Package size={32} strokeWidth={1} className="text-brand-ink-light" />
           </div>
         )}
       </Link>
@@ -72,14 +73,14 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex flex-1 flex-col pt-3.5">
         {/* Overline categoría */}
         {product.categoryName ? (
-          <p className="mb-1 text-[10px] font-medium uppercase tracking-[2px] text-brand-coral">
+          <p className="mb-1 text-[10px] font-medium uppercase tracking-[2px] text-brand-ink-light">
             {product.categoryName}
           </p>
         ) : null}
 
         {/* Nombre */}
-        <Link to={href} className="hover:text-brand-coral">
-          <h3 className="text-sm font-medium leading-snug text-brand-ink transition-colors">
+        <Link to={href} className="hover:opacity-70">
+          <h3 className="text-sm font-medium leading-snug text-brand-ink transition-opacity">
             {product.name}
           </h3>
         </Link>
@@ -101,12 +102,10 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Botón discreto — texto link, no caja grande */}
         <Link
           to={href}
-          className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink transition-colors hover:text-brand-coral"
+          className="mt-3 inline-flex items-center gap-1 text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink transition-opacity hover:opacity-70"
         >
           Ver producto
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M5 12h14M13 6l6 6-6 6" />
-          </svg>
+          <ArrowRight size={12} strokeWidth={1.5} />
         </Link>
       </div>
     </article>

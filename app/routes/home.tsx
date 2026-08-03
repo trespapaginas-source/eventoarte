@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
 import { Link } from "react-router";
+import { MessageCircle, Sparkles, Zap, Palette } from "lucide-react";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
 import { getDb } from "~/lib/db/client";
@@ -86,16 +87,17 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <PublicLayout waNumber={waNumber}>
       {/* ===================== HERO ===================== */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-brand-cream via-white to-brand-cream">
+      <section className="relative overflow-hidden border-b border-border bg-surface">
         <div className="container-page grid items-center gap-8 py-14 md:grid-cols-2 md:py-20">
           {/* Texto */}
           <div>
-            <span className="inline-block rounded-pill bg-brand-coral/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-brand-coral">
-              ✨ Personalización para cada ocasión
+            <span className="inline-flex items-center gap-1.5 border border-border bg-surface-off px-4 py-1.5 text-[11px] font-bold uppercase tracking-[2px] text-brand-ink">
+              <Sparkles size={12} strokeWidth={1.5} />
+              Personalización para cada ocasión
             </span>
             <h1 className="mt-5 text-balance font-display text-4xl font-extrabold leading-tight text-brand-ink md:text-5xl">
               Recordatorios que celebran tus{" "}
-              <span className="text-brand-coral">momentos</span>
+              <span className="italic font-light">momentos</span>
             </h1>
             <p className="mt-5 max-w-md text-lg leading-relaxed text-brand-ink-soft">
               Morrales, loncheras, tulas y recordatorios personalizados para
@@ -115,16 +117,26 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
                 >
-                  💬 WhatsApp
+                  <MessageCircle size={14} strokeWidth={1.5} />
+                  WhatsApp
                 </a>
               ) : null}
             </div>
 
             {/* Trust badges */}
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-brand-ink-soft">
-              <span className="flex items-center gap-1.5">🇨🇴 Fabricación nacional</span>
-              <span className="flex items-center gap-1.5">⚡ Cotización rápida</span>
-              <span className="flex items-center gap-1.5">🎨 Diseño personalizado</span>
+              <span className="flex items-center gap-1.5">
+                <Sparkles size={13} strokeWidth={1.5} />
+                Fabricación nacional
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Zap size={13} strokeWidth={1.5} />
+                Cotización rápida
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Palette size={13} strokeWidth={1.5} />
+                Diseño personalizado
+              </span>
             </div>
           </div>
 
@@ -172,9 +184,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             <Link
               key={cat.slug}
               to={`/categoria/${cat.slug}`}
-              className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-all hover:-translate-y-1 hover:border-brand-coral hover:shadow-md"
+              className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-surface p-4 text-center transition-all hover:-translate-y-1 hover:border-brand-ink hover:shadow-md"
             >
-              <div className="aspect-square w-full overflow-hidden rounded-lg bg-brand-cream">
+              <div className="aspect-square w-full overflow-hidden rounded-lg bg-surface-off">
                 <img
                   src={cat.image}
                   alt={cat.name}
@@ -182,7 +194,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
-              <span className="font-display text-sm font-semibold text-brand-ink transition-colors group-hover:text-brand-coral">
+              <span className="font-display text-sm font-semibold text-brand-ink transition-opacity group-hover:opacity-70">
                 {cat.name}
               </span>
             </Link>
@@ -192,7 +204,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
 
       {/* ===================== DESTACADOS ===================== */}
       {featured.length > 0 ? (
-        <section className="bg-brand-cream py-14">
+        <section className="border-y border-border bg-surface-off py-14">
           <div className="container-page">
             <div className="mb-8 flex items-end justify-between">
               <div>
@@ -203,9 +215,12 @@ export default function Home({ loaderData }: Route.ComponentProps) {
               </div>
               <Link
                 to="/catalogo"
-                className="hidden text-sm font-bold text-brand-coral transition-colors hover:underline sm:block"
+                className="hidden items-center gap-1 text-sm font-bold text-brand-ink transition-opacity hover:opacity-70 sm:flex"
               >
-                Ver todo →
+                Ver todo
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
               </Link>
             </div>
 
@@ -222,7 +237,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       <section className="container-page py-14">
         <div className="relative overflow-hidden border border-border bg-surface-off px-6 py-14 text-center md:px-12 md:py-20">
           <div className="relative z-10 mx-auto max-w-2xl">
-            <span className="mb-4 inline-block text-[11px] font-bold uppercase tracking-[3px] text-brand-coral">
+            <span className="mb-4 inline-block text-[11px] font-bold uppercase tracking-[3px] text-brand-ink-light">
               Cotización a la medida
             </span>
             <h2 className="text-3xl font-bold text-brand-ink md:text-4xl">
@@ -246,7 +261,8 @@ export default function Home({ loaderData }: Route.ComponentProps) {
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 border border-brand-ink px-5 py-2.5 text-xs font-medium uppercase tracking-[1.5px] text-brand-ink transition-all hover:bg-brand-ink hover:text-white"
                 >
-                  💬 WhatsApp
+                  <MessageCircle size={14} strokeWidth={1.5} />
+                  WhatsApp
                 </a>
               ) : null}
             </div>

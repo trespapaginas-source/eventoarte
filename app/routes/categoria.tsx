@@ -65,16 +65,15 @@ export default function Categoria({ loaderData }: Route.ComponentProps) {
       <section className="border-b border-border bg-surface-off">
         <div className="container-page py-10 text-center">
           <nav className="mb-3 text-xs text-brand-ink-soft" aria-label="Migas de pan">
-            <Link to="/" className="hover:text-brand-coral">Inicio</Link>
+            <Link to="/" className="hover:text-brand-ink">Inicio</Link>
             <span className="mx-2">/</span>
-            <Link to="/catalogo" className="hover:text-brand-coral">Catálogo</Link>
+            <Link to="/catalogo" className="hover:text-brand-ink">Catálogo</Link>
             <span className="mx-2">/</span>
             <span className="text-brand-ink">{title}</span>
           </nav>
           <h1 className="font-display text-3xl font-bold capitalize text-brand-ink md:text-4xl">
             {title}
           </h1>
-          {category?.icon ? <span className="mt-2 block text-4xl">{category.icon}</span> : null}
           <p className="mt-2 text-brand-ink-soft">
             Personaliza cada {title.toLowerCase().slice(0, -1)} para tu celebración
           </p>

@@ -7,13 +7,13 @@
  */
 
 export const sampleCategories = [
-  { name: "Morrales", slug: "morrales", icon: "🎒", image: "/images/productos/fotos/morral-safari.jpg" },
-  { name: "Loncheras", slug: "loncheras", icon: "🥪", image: "/images/productos/fotos/lonchera.jpg" },
-  { name: "Cartucheras", slug: "cartucheras", icon: "✏️", image: "/images/productos/fotos/cartuchera.jpg" },
-  { name: "Tulas", slug: "tulas", icon: "👜", image: "/images/productos/fotos/tula.jpg" },
-  { name: "Cangureras", slug: "cangureras", icon: "👛", image: "/images/productos/fotos/cangurera.jpg" },
-  { name: "Recordatorios", slug: "recordatorios", icon: "🎁", image: "/images/productos/fotos/recordatorio.jpg" },
-  { name: "Piñatería", slug: "pinateria", icon: "🎉", image: "/images/productos/fotos/pinateria.jpg" },
+  { name: "Morrales", slug: "morrales", image: "/images/productos/fotos/morral-safari.jpg" },
+  { name: "Loncheras", slug: "loncheras", image: "/images/productos/fotos/lonchera.jpg" },
+  { name: "Cartucheras", slug: "cartucheras", image: "/images/productos/fotos/cartuchera.jpg" },
+  { name: "Tulas", slug: "tulas", image: "/images/productos/fotos/tula.jpg" },
+  { name: "Cangureras", slug: "cangureras", image: "/images/productos/fotos/cangurera.jpg" },
+  { name: "Recordatorios", slug: "recordatorios", image: "/images/productos/fotos/recordatorio.jpg" },
+  { name: "Piñatería", slug: "pinateria", image: "/images/productos/fotos/pinateria.jpg" },
 ];
 
 // Mantiene compatibilidad con código existente que usa sampleOccasions

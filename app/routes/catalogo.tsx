@@ -82,7 +82,7 @@ export default function Catalogo({ loaderData }: Route.ComponentProps) {
       <section className="border-b border-border bg-surface-off">
         <div className="container-page py-10 text-center">
           <nav className="mb-3 text-xs text-brand-ink-soft" aria-label="Migas de pan">
-            <Link to="/" className="hover:text-brand-coral">Inicio</Link>
+            <Link to="/" className="hover:text-brand-ink">Inicio</Link>
             <span className="mx-2">/</span>
             <span className="text-brand-ink">Catálogo</span>
           </nav>

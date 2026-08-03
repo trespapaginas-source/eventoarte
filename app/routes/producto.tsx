@@ -168,12 +168,12 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
               {/* Badges discretos */}
               <div className="absolute left-3 top-3 z-10 flex flex-col gap-1.5">
                 {p.isNew ? (
-                  <span className="bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
+                  <span className="bg-pastel-blush px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-brand-ink">
                     Nuevo
                   </span>
                 ) : null}
                 {p.isBestseller ? (
-                  <span className="bg-brand-coral px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
+                  <span className="bg-brand-ink px-2.5 py-1 text-[10px] font-medium uppercase tracking-[1px] text-white">
                     Más vendido
                   </span>
                 ) : null}
@@ -189,7 +189,7 @@ export default function Producto({ loaderData }: Route.ComponentProps) {
           {/* ===== Info minimalista ===== */}
           <div className="flex flex-col">
             {/* Overline categoría */}
-            <p className="text-[10px] font-medium uppercase tracking-[2px] text-brand-coral">
+            <p className="text-[10px] font-medium uppercase tracking-[2px] text-brand-ink-light">
               {p.categoryName}
             </p>
 

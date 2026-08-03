@@ -8,25 +8,39 @@
 */
 
 @theme {
-  /* ---- Paleta de marca (refinada al estilo premium tipo Vélez) ---- */
+  /* ---- Paleta: blanco y negro predominante + acentos pastel SÚPER sutiles ----
+     Tienda infantil, pero tono editorial minimalista.
+     El pastel se reserva para detalles mínimos (badge "Nuevo", un hover).
+     Nunca como color de fondo dominante. */
+
+  /* Acentos pastel (muy desaturados, uso puntual) */
   --color-brand-coral: #e8645a;
   --color-brand-coral-dark: #d14e45;
   --color-brand-mustard: #f2b544;
   --color-brand-sage: #7fa88c;
-  --color-brand-cream: #fff8f0;
+
+  /* Pastel suave: rosa empolvado MUY claro para acentos mínimos */
+  --color-pastel-blush: #f7e8ea;
+  --color-pastel-mint: #e8f0ea;
+  --color-pastel-sky: #e8eef5;
+  --color-pastel-butter: #f7f0e0;
+  --color-pastel-lilac: #ede8f2;
+
+  /* Crema cálida neutra (casi blanco, NO rosada) */
+  --color-brand-cream: #fafafa;
 
   /* Tinta casi-negra cálida (premium, NO negro puro) */
   --color-brand-ink: #1a1a1a;
   --color-brand-ink-soft: #606060;
   --color-brand-ink-light: #8d8d8d;
 
-  /* WhatsApp (oficial) */
+  /* WhatsApp (oficial, solo en botones específicos de WhatsApp) */
   --color-whatsapp: #25d366;
   --color-whatsapp-dark: #1fb855;
 
   /* Superficies y bordes hairline (estilo Vélez) */
   --color-surface: #ffffff;
-  --color-surface-off: #f5f5f5;
+  --color-surface-off: #f7f7f7;
   --color-surface-soft: #fafafa;
   --color-border: #ebecee;
   --color-border-strong: #1a1a1a;

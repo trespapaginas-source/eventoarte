@@ -1,5 +1,6 @@
 import type { Route } from "./+types/contacto";
 import { Link } from "react-router";
+import { MessageCircle, Camera, Mail, MapPin, ArrowRight } from "lucide-react";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 
@@ -28,11 +29,10 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
       <section className="border-b border-border bg-surface-off">
         <div className="container-page py-12 text-center">
           <nav className="mb-3 text-xs text-brand-ink-soft" aria-label="Migas de pan">
-            <Link to="/" className="hover:text-brand-coral">Inicio</Link>
+            <Link to="/" className="hover:text-brand-ink">Inicio</Link>
             <span className="mx-2">/</span>
             <span className="text-brand-ink">Contacto</span>
           </nav>
-          <span className="text-5xl">💌</span>
           <h1 className="mt-3 text-3xl font-bold text-brand-ink md:text-4xl">
             Hablemos de tu evento
           </h1>
@@ -46,7 +46,7 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
       <section className="container-page grid gap-10 py-14 md:grid-cols-2">
         {/* ===== Columna izquierda: Canales de contacto ===== */}
         <div>
-          <h2 className="text-[11px] font-bold uppercase tracking-[2px] text-brand-coral">
+          <h2 className="text-[11px] font-bold uppercase tracking-[2px] text-brand-ink-light">
             Canales de atención
           </h2>
 
@@ -58,12 +58,14 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
                 rel="noreferrer"
                 className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
               >
-                <span className="flex h-11 w-11 items-center justify-center bg-whatsapp text-lg text-white">💬</span>
+                <span className="flex h-11 w-11 items-center justify-center bg-brand-ink text-white">
+                  <MessageCircle size={18} strokeWidth={1.5} />
+                </span>
                 <div>
                   <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">WhatsApp</p>
                   <p className="text-sm font-medium text-brand-ink">+{waNumber} · Respuesta rápida</p>
                 </div>
-                <span className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1">→</span>
+                <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
               </a>
             ) : null}
 
@@ -73,30 +75,34 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
               rel="noreferrer"
               className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
             >
-              <span className="flex h-11 w-11 items-center justify-center bg-brand-ink text-lg text-white">📷</span>
+              <span className="flex h-11 w-11 items-center justify-center bg-brand-ink text-white">
+                <Camera size={18} strokeWidth={1.5} />
+              </span>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">Instagram</p>
                 <p className="text-sm font-medium text-brand-ink">@eventoarte.co</p>
               </div>
-              <span className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1">→</span>
+              <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
             </a>
 
             <a
               href="mailto:hola@eventoarte.co"
               className="group flex items-center gap-4 border border-border bg-surface p-4 transition-colors hover:border-brand-ink"
             >
-              <span className="flex h-11 w-11 items-center justify-center bg-brand-coral text-lg text-white">✉️</span>
+              <span className="flex h-11 w-11 items-center justify-center bg-brand-ink text-white">
+                <Mail size={18} strokeWidth={1.5} />
+              </span>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-light">Correo</p>
                 <p className="text-sm font-medium text-brand-ink">hola@eventoarte.co</p>
               </div>
-              <span className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1">→</span>
+              <ArrowRight size={16} strokeWidth={1.5} className="ml-auto text-brand-ink-light transition-transform group-hover:translate-x-1" />
             </a>
           </div>
 
           {/* Horarios */}
           <div className="mt-8">
-            <h3 className="text-[11px] font-bold uppercase tracking-[2px] text-brand-coral">
+            <h3 className="text-[11px] font-bold uppercase tracking-[2px] text-brand-ink-light">
               Horario de atención
             </h3>
             <dl className="mt-4 space-y-2 text-sm">
@@ -117,7 +123,10 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
 
           {/* Cobertura */}
           <div className="mt-8 border border-border bg-surface-off p-5">
-            <p className="flex items-center gap-2 text-sm font-medium text-brand-ink">🇨🇴 Cobertura nacional</p>
+            <p className="flex items-center gap-2 text-sm font-medium text-brand-ink">
+              <MapPin size={16} strokeWidth={1.5} />
+              Cobertura nacional
+            </p>
             <p className="mt-1 text-sm text-brand-ink-soft">
               Fabricamos y enviamos a todo Colombia. El costo de envío se confirma
               según destino y cantidad.
@@ -142,24 +151,6 @@ export default function Contacto({ loaderData }: Route.ComponentProps) {
             <div className="grid gap-4 sm:grid-cols-2">
               <FormField label="Fecha del evento" name="eventDate" type="date" />
               <FormField label="Cantidad aprox." name="quantity" type="number" />
-            </div>
-
-            {/* Público Niños/Niñas */}
-            <div>
-              <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[1.5px] text-brand-ink-soft">
-                Para
-              </label>
-              <div className="flex gap-2">
-                {["Niños", "Niñas", "Unisex"].map((opt) => (
-                  <label key={opt} className="flex-1">
-                    <input type="radio" name="audience" value={opt} className="peer sr-only" />
-                    <span className="block cursor-pointer border border-border py-2 text-center text-xs font-medium text-brand-ink-soft transition-colors peer-checked:border-brand-ink peer-checked:bg-brand-ink peer-checked:text-white hover:border-brand-ink">
-                      {opt === "Niños" ? "🚀 " : opt === "Niñas" ? "🎀 " : "✨ "}
-                      {opt}
-                    </span>
-                  </label>
-                ))}
-              </div>
             </div>
 
             {/* Tipo de evento */}

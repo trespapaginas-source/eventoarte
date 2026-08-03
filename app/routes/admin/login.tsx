@@ -8,7 +8,7 @@ export function meta() {
 export default function AdminLogin() {
   return (
     <main className="container-page py-16 text-center">
-      <h1 className="text-3xl">🔒 Iniciar sesión</h1>
+      <h1 className="text-3xl">Iniciar sesión</h1>
       <p className="mt-3 text-brand-ink-soft">
         La autenticación del CMS se implementa en la Fase 3.
       </p>

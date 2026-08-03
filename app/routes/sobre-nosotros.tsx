@@ -30,7 +30,7 @@ export default function SobreNosotros({ loaderData }: Route.ComponentProps) {
             detalles que hacen único cada recuerdo. Trabajamos con materiales de calidad y tiempos
             de entrega confiables.
           </p>
-          <p>🎉 <strong>Hecho en Colombia, para celebrar contigo.</strong></p>
+          <p><strong>Hecho en Colombia, para celebrar contigo.</strong></p>
         </div>
       </section>
     </PublicLayout>

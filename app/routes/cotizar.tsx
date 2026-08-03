@@ -21,7 +21,7 @@ export default function Cotizar({ loaderData }: Route.ComponentProps) {
         <div className="mx-auto max-w-xl">
           <h1 className="text-3xl md:text-4xl">Solicita tu cotización</h1>
           <p className="mt-3 text-brand-ink-soft">
-            Completa el formulario o escríbenos directo por WhatsApp. Te respondemos lo antes posible. 💬
+            Completa el formulario o escríbenos directo por WhatsApp. Te respondemos lo antes posible.
           </p>
 
           <form method="post" action="/cotizar" className="mt-8 grid gap-4">
@@ -37,13 +37,13 @@ export default function Cotizar({ loaderData }: Route.ComponentProps) {
                 id="message"
                 name="message"
                 rows={4}
-                className="w-full rounded-md border border-border bg-surface px-3 py-2 focus:border-brand-coral focus:outline-none"
+                className="w-full rounded-md border border-border bg-surface px-3 py-2 focus:border-brand-ink focus:outline-none"
                 placeholder="Cuéntanos el tema, colores y detalles que quieres personalizar."
               />
             </div>
             <button
               type="submit"
-              className="rounded-pill bg-brand-coral px-6 py-3 font-semibold text-white shadow-md transition-transform hover:scale-105"
+              className="w-full border border-brand-ink bg-brand-ink py-3 text-xs font-medium uppercase tracking-[1.5px] text-white transition-all hover:bg-transparent hover:text-brand-ink"
             >
               Enviar solicitud
             </button>
