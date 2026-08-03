@@ -99,7 +99,9 @@ h5 {
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.01em;
-  color: var(--color-brand-ink);
+  /* Sin color fijo: hereda del contexto. Las utilidades text-* (incluido
+     text-white del hero) aplican sin ser pisadas por esta regla base.
+     El color por defecto del body es brand-ink (definido abajo). */
 }
 
 /* Respeta usuarios que prefieren menos movimiento */
