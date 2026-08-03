@@ -122,13 +122,14 @@ export default function Home({ loaderData }: Route.ComponentProps) {
           style={{ backgroundImage: `url(${heroImages[0]})` }}
           aria-hidden="true"
         />
-        {/* Cortina tenue: degradado oscuro suave (no negro total) para que el
-            texto se lea bien sin apagar los colores de la foto. */}
+        {/* Cortina: degradado oscuro para que el texto blanco se lea siempre,
+            sin importar si la foto de fondo es clara u oscura.
+            Más denso a la izquierda (donde va el texto), más suave a la derecha. */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(90deg, rgba(26,26,26,0.72) 0%, rgba(26,26,26,0.48) 45%, rgba(26,26,26,0.25) 100%)",
+              "linear-gradient(90deg, rgba(26,26,26,0.82) 0%, rgba(26,26,26,0.62) 50%, rgba(26,26,26,0.35) 100%)",
           }}
           aria-hidden="true"
         />
