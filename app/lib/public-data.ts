@@ -71,3 +71,37 @@ function parseBool(value: string | undefined, fallback: boolean): boolean {
   if (value === undefined) return fallback;
   return value === "true" || value === "1" || value === "on";
 }
+
+/* ============================================================
+   Normalizadores de entidades de BD → formato que espera la UI.
+   La UI pública usa campos como `image` (ruta lista para <img src>).
+   Las entidades de BD tienen `imageKey` (clave R2 servida vía /media/).
+   Estos helpers unifican ambos orígenes para que la UI no distinga.
+   ============================================================ */
+
+/**
+ * Normaliza una categoría de BD: deriva `image` desde `imageKey`.
+ * Si ya trae `image` (datos de muestra), la respeta.
+ */
+export function normalizeCategory(cat: any): any {
+  if (!cat) return cat;
+  if (cat.image) return cat;
+  return { ...cat, image: cat.imageKey ? `/media/${cat.imageKey}` : null };
+}
+
+/**
+ * Normaliza un producto de BD: deriva `image` y `gallery` desde sus
+ * relaciones `images` (array de { r2Key, sortOrder }).
+ */
+export function normalizeProduct(product: any): any {
+  if (!product) return product;
+  // Si ya tiene image/gallery (datos de muestra), respetar.
+  if (product.image) return product;
+  const imgs: any[] = Array.isArray(product.images) ? product.images : [];
+  if (imgs.length === 0) return { ...product, image: null, gallery: [] };
+  const sorted = [...imgs].sort(
+    (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
+  );
+  const gallery = sorted.map((i) => `/media/${i.r2Key}`);
+  return { ...product, image: gallery[0] ?? null, gallery };
+}

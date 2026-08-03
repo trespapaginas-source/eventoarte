@@ -5,7 +5,7 @@ import { FilterBar } from "~/components/catalog/FilterBar";
 import { BrandLink } from "~/lib/brand-links";
 import { canonicalUrl, isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { getDb } from "~/lib/db/client";
-import { loadPublicData } from "~/lib/public-data";
+import { loadPublicData, normalizeProduct } from "~/lib/public-data";
 import { listProducts } from "~/lib/db/queries";
 import {
   sampleProducts,
@@ -58,7 +58,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       try {
         if (db) {
           const r = await listProducts(db, { sort: filters.sort as any });
-          if (r.length) p = r as any;
+          if (r.length) p = r.map(normalizeProduct) as any;
         }
       } catch {}
       return p;

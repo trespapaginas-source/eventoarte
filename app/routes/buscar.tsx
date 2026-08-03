@@ -4,7 +4,7 @@ import { cloudflareContext } from "~/lib/cloudflare-context";
 import { PublicLayout } from "~/components/layout/PublicLayout";
 import { ProductCard } from "~/components/catalog/ProductCard";
 import { getDb } from "~/lib/db/client";
-import { loadPublicData } from "~/lib/public-data";
+import { loadPublicData, normalizeProduct } from "~/lib/public-data";
 import { isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { listProducts } from "~/lib/db/queries";
 import { sampleProducts } from "~/lib/sample-data";
@@ -33,7 +33,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
   try {
     if (db && q) {
       const r = await listProducts(db, { search: q });
-      if (r.length) results = r as any;
+      if (r.length) results = r.map(normalizeProduct) as any;
     }
   } catch {
     /* muestra */

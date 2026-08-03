@@ -6,7 +6,7 @@ import { BrandLink } from "~/lib/brand-links";
 import { buildWhatsAppSimpleLink, buildWhatsAppGeneralLink } from "~/lib/whatsapp";
 import { canonicalUrl, isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { getDb } from "~/lib/db/client";
-import { loadPublicData } from "~/lib/public-data";
+import { loadPublicData, normalizeCategory, normalizeProduct } from "~/lib/public-data";
 import {
   getActiveCategories,
   getFeaturedProducts,
@@ -70,7 +70,7 @@ export async function loader({ context, params }: Route.LoaderArgs) {
       try {
         if (db) {
           const r = await getFeaturedProducts(db, 4);
-          if (r.length) f = r as any;
+          if (r.length) f = r.map(normalizeProduct) as any;
         }
       } catch {}
       return f;
@@ -80,7 +80,7 @@ export async function loader({ context, params }: Route.LoaderArgs) {
       try {
         if (db) {
           const r = await listProducts(db, { sort: "featured" });
-          if (r.length) c = r as any;
+          if (r.length) c = r.map(normalizeProduct) as any;
         }
       } catch {}
       return c;
@@ -90,7 +90,7 @@ export async function loader({ context, params }: Route.LoaderArgs) {
       try {
         if (db) {
           const r = await getActiveCategories(db);
-          if (r.length) cats = r as any;
+          if (r.length) cats = r.map(normalizeCategory);
         }
       } catch {}
       return cats;
