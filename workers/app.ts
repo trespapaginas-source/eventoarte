@@ -7,7 +7,7 @@ import { createRequestHandler } from "react-router";
  */
 interface Env {
   DB: D1Database;
-  MEDIA: R2Bucket;
+  // MEDIA: R2Bucket;  // se habilita tras activar R2 en el dashboard
   WA_NUMBER: string;
   PUBLIC_URL: string;
   SITE_NAME: string;

@@ -17,16 +17,16 @@
     {
       "binding": "DB",
       "database_name": "eventoarte-db",
-      "database_id": "REEMPLAZAR_CON_ID_DE_D1",
+      "database_id": "337383f0-fbf2-4101-af7c-1083f691ca4f",
       "migrations_dir": "./drizzle/migrations"
     }
   ],
-  "r2_buckets": [
-    {
-      "binding": "MEDIA",
-      "bucket_name": "eventoarte-media"
-    }
-  ],
+
+  // R2 se activa desde el dashboard de Cloudflare (un clic) y luego se
+  // descomenta este bloque para habilitar la subida de imágenes en el CMS:
+  // "r2_buckets": [
+  //   { "binding": "MEDIA", "bucket_name": "eventoarte-media" }
+  // ],
 
   // ====== Variables públicas (no sensibles) ======
   "vars": {
