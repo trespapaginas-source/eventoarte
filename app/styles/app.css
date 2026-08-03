@@ -252,3 +252,35 @@ h5 {
   white-space: nowrap;
   z-index: 10;
 }
+
+/* ====== Banner superior: desplazamiento horizontal infinito (marquee) ======
+   El contenido se duplica y se desliza de 0% a -50% para que el loop sea
+   imperceptible. Velocidad pausada (25s) para legibilidad. */
+
+@keyframes marquee-banner {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee-banner 25s linear infinite;
+  will-change: transform;
+}
+
+/* Pausa el movimiento al hacer hover (accesibilidad / UX) */
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Usuario prefiere menos movimiento → detiene el marquee */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}

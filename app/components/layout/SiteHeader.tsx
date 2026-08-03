@@ -45,22 +45,18 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-surface">
-      {/* Barra superior fina editable (banner.top) */}
+      {/* Barra superior editable (banner.top) — marquee infinito con viñeta degradada */}
       {showBanner ? (
         banner!.link ? (
           <a
             href={banner!.link}
-            className="block bg-brand-ink py-2 text-center transition-opacity hover:opacity-90"
+            className="block overflow-hidden bg-brand-ink py-2 transition-opacity hover:opacity-90"
           >
-            <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
-              {banner!.text}
-            </span>
+            <BannerMarquee text={banner!.text} />
           </a>
         ) : (
-          <div className="bg-brand-ink py-2 text-center">
-            <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
-              {banner!.text}
-            </span>
+          <div className="overflow-hidden bg-brand-ink py-2">
+            <BannerMarquee text={banner!.text} />
           </div>
         )
       ) : null}
@@ -199,5 +195,47 @@ export function SiteHeader({
         </div>
       ) : null}
     </header>
+  );
+}
+
+/**
+ * Tira de banner con desplazamiento horizontal infinito (marquee).
+ * Duplica el contenido para que el loop (translateX 0% → -50%) sea
+ * imperceptible. La viñeta "•" usa el degradado de marca.
+ */
+function BannerMarquee({ text }: { text: string }) {
+  // Repetimos el texto varias veces para llenar el ancho de pantallas grandes
+  const items = Array.from({ length: 8 }, () => text);
+  return (
+    <div className="marquee-track">
+      {/* Grupo 1 */}
+      <span className="inline-flex items-center">
+        {items.map((t, i) => (
+          <span key={i} className="inline-flex items-center">
+            <span
+              className="mx-3 inline-block h-1.5 w-1.5 rounded-full bg-gradient-brand align-middle"
+              aria-hidden="true"
+            />
+            <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
+              {t}
+            </span>
+          </span>
+        ))}
+      </span>
+      {/* Grupo 2 (duplicado exacto para continuidad del loop) */}
+      <span className="inline-flex items-center" aria-hidden="true">
+        {items.map((t, i) => (
+          <span key={i} className="inline-flex items-center">
+            <span
+              className="mx-3 inline-block h-1.5 w-1.5 rounded-full bg-gradient-brand align-middle"
+              aria-hidden="true"
+            />
+            <span className="text-[11px] font-bold uppercase tracking-[3px] text-white/90">
+              {t}
+            </span>
+          </span>
+        ))}
+      </span>
+    </div>
   );
 }

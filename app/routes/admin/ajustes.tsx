@@ -4,6 +4,7 @@ import { AdminShell } from "~/components/admin/AdminShell";
 import { Button } from "~/components/ui/Toggle";
 import { Field, TextInput, TextArea, Select } from "~/components/ui/Field";
 import { SingleImageUploader } from "~/components/admin/SingleImageUploader";
+import { HeroImageEditor } from "~/components/admin/HeroImageEditor";
 import { cloudflareContext } from "~/lib/cloudflare-context";
 import { requireUser } from "~/lib/auth";
 import { getDb } from "~/lib/db/client";
@@ -126,6 +127,11 @@ export default function AdminAjustes({ loaderData, actionData }: Route.Component
                   <option value="recordarte">Recordarte</option>
                 </Select>
               </Field>
+            </Section>
+
+            {/* Fotos del Hero (home) */}
+            <Section title="Fotos del Hero (inicio)">
+              <HeroImageEditor initialJson={get("hero.images")} />
             </Section>
 
             {/* Banner superior */}

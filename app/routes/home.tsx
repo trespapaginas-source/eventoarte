@@ -101,7 +101,7 @@ export async function loader({ context, params }: Route.LoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { featured, catalog, categories, brand, publicUrl, banner, promo } = loaderData;
+  const { featured, catalog, categories, brand, publicUrl, banner, promo, heroImages } = loaderData;
 
   const waSimple = buildWhatsAppSimpleLink(brand);
   const waGeneral = buildWhatsAppGeneralLink(brand);
@@ -164,31 +164,35 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             </div>
           </div>
 
-          {/* Collage visual — fotos reales */}
+          {/* Collage visual — fotos editables desde el CMS */}
+          {/* Desktop: grilla de 4 fotos */}
           <div className="relative hidden md:block">
             <div className="grid grid-cols-2 gap-4">
-              <img
-                src="/images/productos/fotos/morral-safari.jpg"
-                alt="Morral personalizado"
-                className="aspect-3/4 w-full rounded-xl object-cover shadow-md"
-                loading="eager"
-              />
-              <div className="grid gap-4">
+              {heroImages.slice(0, 4).map((src: string, i: number) => (
                 <img
-                  src="/images/productos/fotos/lonchera.jpg"
-                  alt="Lonchera personalizada"
-                  className="aspect-square w-full rounded-xl object-cover shadow-md"
+                  key={i}
+                  src={src}
+                  alt={`Ejemplo ${i + 1}`}
+                  className={`w-full rounded-xl object-cover shadow-md ${
+                    i === 0 ? "aspect-3/4 row-span-2" : "aspect-square"
+                  }`}
                   loading="eager"
                 />
-                <img
-                  src="/images/productos/fotos/recordatorio.jpg"
-                  alt="Recordatorio premium"
-                  className="aspect-square w-full rounded-xl object-cover shadow-md"
-                  loading="eager"
-                />
-              </div>
+              ))}
             </div>
           </div>
+          {/* Móvil: una sola foto de fondo con cobertura completa */}
+          <div
+            className="absolute inset-0 -z-0 md:hidden"
+            style={{
+              backgroundImage: `url(${heroImages[0]})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+            aria-hidden="true"
+          />
+          {/* Overlay para legibilidad del texto sobre el fondo en móvil */}
+          <div className="absolute inset-0 bg-surface/70 md:hidden" aria-hidden="true" />
         </div>
       </section>
 

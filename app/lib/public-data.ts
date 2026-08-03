@@ -18,6 +18,8 @@ export interface PublicSiteData {
   banner: { text: string; active: boolean; link?: string | null };
   /** Cinta promocional editable (home). */
   promo: { text: string; active: boolean };
+  /** Imágenes del hero (hasta 4). Rutas listas para <img src>. */
+  heroImages: string[];
 }
 
 const DEFAULT_BANNER = {
@@ -27,6 +29,14 @@ const DEFAULT_BANNER = {
 };
 
 const DEFAULT_PROMO = { text: "", active: false };
+
+/** Fotos del hero por defecto (assets estáticos del repo). */
+const DEFAULT_HERO_IMAGES = [
+  "/images/productos/fotos/morral-safari.jpg",
+  "/images/productos/fotos/lonchera.jpg",
+  "/images/productos/fotos/recordatorio.jpg",
+  "/images/productos/fotos/tula.jpg",
+];
 
 /**
  * Resuelve los datos del sitio público para una ruta.
@@ -65,11 +75,14 @@ export async function loadPublicData(opts: {
         text: settings["promo.text"] ?? "",
         active: parseBool(settings["promo.active"], false),
       };
+      // Hero images: JSON array de claves R2 o rutas. Resuelve a URLs.
+      const heroImages = resolveHeroImages(settings["hero.images"]);
       return {
         brand: finalBrand,
         publicUrl: opts.publicUrl.replace(/\/$/, ""),
         banner,
         promo,
+        heroImages,
       };
     } catch {
       // BD caída: usamos defaults
@@ -81,12 +94,35 @@ export async function loadPublicData(opts: {
     publicUrl: opts.publicUrl.replace(/\/$/, ""),
     banner,
     promo,
+    heroImages: DEFAULT_HERO_IMAGES,
   };
 }
 
 function parseBool(value: string | undefined, fallback: boolean): boolean {
   if (value === undefined) return fallback;
   return value === "true" || value === "1" || value === "on";
+}
+
+/**
+ * Resuelve las imágenes del hero desde el valor guardado en settings.
+ * El valor es un JSON array de strings (claves R2 o rutas absolutas).
+ * - Claves R2 (ej: "hero/foto.png") → "/media/hero/foto.png"
+ * - Rutas que empiezan con "/" o "http" → se usan tal cual
+ * Si está vacío o inválido, devuelve los defaults.
+ */
+function resolveHeroImages(stored: string | undefined): string[] {
+  if (!stored) return DEFAULT_HERO_IMAGES;
+  try {
+    const arr = JSON.parse(stored);
+    if (!Array.isArray(arr)) return DEFAULT_HERO_IMAGES;
+    const resolved = arr
+      .map(String)
+      .filter(Boolean)
+      .map((s) => (s.startsWith("/") || s.startsWith("http") ? s : `/media/${s}`));
+    return resolved.length > 0 ? resolved.slice(0, 4) : DEFAULT_HERO_IMAGES;
+  } catch {
+    return DEFAULT_HERO_IMAGES;
+  }
 }
 
 /* ============================================================
