@@ -8,7 +8,9 @@
 
 import type { Database } from "./db/client";
 import { getAllSettings } from "./db/mutations";
+import { getActiveCategories } from "./db/queries";
 import { resolveBrand, applyBrandOverrides, type BrandConfig, type BrandSlug } from "./brand";
+import { sampleCategories } from "./sample-data";
 
 export interface PublicSiteData {
   brand: BrandConfig;
@@ -157,4 +159,26 @@ export function normalizeProduct(product: any): any {
   );
   const gallery = sorted.map((i) => `/media/${i.r2Key}`);
   return { ...product, image: gallery[0] ?? null, gallery };
+}
+
+/**
+ * ÚNICA fuente de verdad para categorías en el sitio público.
+ *
+ * - Lee las categorías activas desde la BD (getActiveCategories), que respeta
+ *   el sortOrder editable por drag & drop en el CMS.
+ * - Normaliza cada categoría: deriva `image` desde `imageKey` (R2).
+ * - Si no hay BD o está vacía, usa sampleCategories como fallback.
+ *
+ * Usar este helper en TODAS las rutas públicas que muestren categorías
+ * (home, catálogo) para garantizar consistencia total.
+ */
+export async function loadCategories(db: Database | null): Promise<any[]> {
+  if (!db) return sampleCategories;
+  try {
+    const cats = await getActiveCategories(db);
+    if (cats.length === 0) return sampleCategories;
+    return cats.map(normalizeCategory);
+  } catch {
+    return sampleCategories;
+  }
 }

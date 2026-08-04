@@ -5,9 +5,8 @@ import { FilterBar } from "~/components/catalog/FilterBar";
 import { BrandLink } from "~/lib/brand-links";
 import { canonicalUrl, isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { getDb } from "~/lib/db/client";
-import { loadPublicData } from "~/lib/public-data";
+import { loadPublicData, loadCategories } from "~/lib/public-data";
 import {
-  sampleCategories,
   getProductsByCategory,
   getCategoryBySlug,
   applyFilters,
@@ -45,8 +44,9 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     sort: (url.searchParams.get("orden") as SortOption) ?? "relevancia",
   };
 
-  const [site] = await Promise.all([
+  const [site, categories] = await Promise.all([
     loadPublicData({ db, brandSlug: params.brand, publicUrl: env.PUBLIC_URL }),
+    loadCategories(db),
   ]);
 
   const category = getCategoryBySlug(slug);
@@ -57,7 +57,7 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     ...site,
     products,
     category,
-    categories: sampleCategories,
+    categories,
   };
 }
 

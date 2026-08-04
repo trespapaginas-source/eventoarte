@@ -6,15 +6,13 @@ import { BrandLink } from "~/lib/brand-links";
 import { buildWhatsAppSimpleLink, buildWhatsAppGeneralLink } from "~/lib/whatsapp";
 import { canonicalUrl, isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { getDb } from "~/lib/db/client";
-import { loadPublicData, normalizeCategory, normalizeProduct } from "~/lib/public-data";
+import { loadPublicData, loadCategories, normalizeProduct } from "~/lib/public-data";
 import {
-  getActiveCategories,
   getFeaturedProducts,
   listProducts,
 } from "~/lib/db/queries";
 import {
   sampleProducts,
-  sampleCategories,
   type SampleProduct,
 } from "~/lib/sample-data";
 import { cloudflareContext } from "~/lib/cloudflare-context";
@@ -85,16 +83,7 @@ export async function loader({ context, params }: Route.LoaderArgs) {
       } catch {}
       return c;
     })(),
-    (async () => {
-      let cats = sampleCategories;
-      try {
-        if (db) {
-          const r = await getActiveCategories(db);
-          if (r.length) cats = r.map(normalizeCategory);
-        }
-      } catch {}
-      return cats;
-    })(),
+    loadCategories(db),
   ]);
 
   return { ...site, featured, catalog, categories };

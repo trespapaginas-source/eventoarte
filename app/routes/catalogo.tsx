@@ -5,11 +5,10 @@ import { FilterBar } from "~/components/catalog/FilterBar";
 import { BrandLink } from "~/lib/brand-links";
 import { canonicalUrl, isIndexedBrand, resolveBrand } from "~/lib/brand";
 import { getDb } from "~/lib/db/client";
-import { loadPublicData, normalizeProduct } from "~/lib/public-data";
+import { loadPublicData, loadCategories, normalizeProduct } from "~/lib/public-data";
 import { listProducts } from "~/lib/db/queries";
 import {
   sampleProducts,
-  sampleCategories,
   applyFilters,
   type SortOption,
 } from "~/lib/sample-data";
@@ -51,7 +50,9 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
     sort: (url.searchParams.get("orden") as SortOption) ?? "relevancia",
   };
 
-  const [site, baseProducts] = await Promise.all([
+  // Categorías dinámicas desde la BD (misma fuente que la home).
+  // Revalidación: siempre fresh, sin caché, para reflejar cambios del CMS.
+  const [site, baseProducts, categories] = await Promise.all([
     loadPublicData({ db, brandSlug: params.brand, publicUrl: env.PUBLIC_URL }),
     (async () => {
       let p = sampleProducts;
@@ -63,15 +64,16 @@ export async function loader({ context, params, request }: Route.LoaderArgs) {
       } catch {}
       return p;
     })(),
+    loadCategories(db),
   ]);
 
-  // Aplicar filtros
+  // Aplicar filtros a los productos
   const products = applyFilters(baseProducts, filters);
 
   return {
     ...site,
     products,
-    categories: sampleCategories,
+    categories,
     activeCategory: filters.category,
   };
 }
